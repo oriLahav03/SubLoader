@@ -24,6 +24,7 @@ class Server:
         self.cliets_list = []
         self.Thread_count = 0
         self.client_lock = allocate_lock()
+        self.sock_lock = allocate_lock()
         while True:
             Client, address = self.ServerSocket.accept()
             print('Connected to: ' + address[0] + ':' + str(address[1]))
@@ -43,8 +44,15 @@ class Server:
         
         while True:
             try:
-                data = sc.recv(2048)
-                #reply = 'Server Says: ' + data.decode('utf-8')
+                data = sc.recv(512).decode()
+                msg = "->" + name + ': ' + data
+                self.client_lock.acquire()
+                for cln in self.cliets_list:
+                    if sc not in cln:
+                        self.sock_lock.acquire()
+                        cln[0].sendall(msg.encode())
+                        self.sock_lock.release()
+                self.client_lock.release()
             except:
                 print('client disconected')
                 break
