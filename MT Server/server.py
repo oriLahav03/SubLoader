@@ -36,7 +36,7 @@ class Server:
 
     def threaded_client(self, sc, addr):
         try:
-            sc.send(str.encode('Welcome to the Server\nsend ur name to chat (16 leters max)\n'))
+            sc.send(str.encode('Welcome to the Server\nsend ur name to chat (16 leters max)'))
             name = sc.recv(16).decode()
             sc.sendall(str.encode("Hi " + name + '\nu can chat now (enter q for exit)'))
             is_connected = True
@@ -45,7 +45,7 @@ class Server:
 
         if is_connected:
             self.client_lock.acquire()
-            self.cliets_list += (sc,addr,name)
+            self.cliets_list.append((sc,addr,name))
             self.Thread_count += 1
             self.client_lock.release()
             
@@ -68,7 +68,7 @@ class Server:
             #print("\n", address[0] + ':' + str(address[1]), " disconnected", "\n")
             self.client_lock.acquire()
             self.Thread_count -= 1
-            self.cliets_list.remove(sc,addr,name)
+            self.cliets_list.remove((sc,addr,name))
             self.client_lock.release()
             sc.close()
 

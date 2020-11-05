@@ -17,16 +17,18 @@ class Client:
 
     def get_n_print(self):
         self.sc_lock.acquire()
-        Response = self.cs.recv(128)
+        Response = self.sc.recv(128)
         self.sc_lock.release()
         print(Response.decode())
 
     def enter_n_send(self):
-        inp = Input()
+        inp = input()
         if inp:
             clnt.sc_lock.acquire()
-            self.cs.send(str.encode(inp))
+            self.sc.send(str.encode(inp))
             clnt.sc_lock.release()
+        if inp == 'q':
+            return True
 
     def get_msg_thread(self):
         while True:
@@ -43,7 +45,8 @@ if __name__ == "__main__":
 
     while True:
         try:
-            clnt.enter_n_send()
+            if clnt.enter_n_send():
+                break
         except Exception as e:
             print(e)
             break   
