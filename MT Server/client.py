@@ -7,6 +7,7 @@ port = 10000
 class Client:
     def __init__(self):
         self.sc = socket.socket()
+        self.sc_lock = allocate_lock()
         print('try to connect..')
         try:
             self.sc.connect((host, port))
@@ -15,16 +16,24 @@ class Client:
             exit(1)
 
     def get_n_print(self):
-        Response = self.cs.recv(512)
+        self.sc_lock.acquire()
+        Response = self.cs.recv(128)
+        self.sc_lock.release()
         print(Response.decode())
-        
+
     def enter_n_send(self):
         inp = Input()
-        self.cs.send(str.encode(inp))
+        if inp:
+            clnt.sc_lock.acquire()
+            self.cs.send(str.encode(inp))
+            clnt.sc_lock.release()
 
-
-
-
+    def get_msg_thread(self):
+        while True:
+            try:
+                self.get_n_print()
+            except Exception as e:
+                print(e)
 
 if __name__ == "__main__":
     clnt = Client()
@@ -33,11 +42,9 @@ if __name__ == "__main__":
     clnt.get_n_print()
 
     while True:
-        Input = input('Say Something (to disconnect write "quit"): ')
-        ClientSocket.send(str.encode(Input))
-        if Input.lower() == 'quit':
-            break
-        Response = ClientSocket.recv(1024)
-        print(Response.decode('utf-8'))
-
-    ClientSocket.close()
+        try:
+            clnt.enter_n_send()
+        except Exception as e:
+            print(e)
+            break   
+    clnt.sc.close()

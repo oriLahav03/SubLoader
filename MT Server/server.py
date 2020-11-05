@@ -16,6 +16,7 @@ class Server:
             self.ServerSocket.bind((host, port))
         except socket.error as e:
             print(str(e))
+            exit(1)
 
         print('Waiting for a Connections...\n')
         self.ServerSocket.listen(5)
@@ -36,7 +37,7 @@ class Server:
     def threaded_client(self, sc, addr):
         sc.send(str.encode('Welcome to the Server\nsend ur name to chat (16 leters max)\n'))
         name = sc.recv(16).decode()
-
+        sc.sendall(str.encode("Hi " + name + '\nu can chat now (enter q for exit)'))
         self.client_lock.acquire()
         self.cliets_list += (sc,addr,name)
         self.Thread_count += 1
@@ -46,7 +47,7 @@ class Server:
             try:
                 data = sc.recv(512).decode()
                 msg = "->" + name + ': ' + data
-                if not data:
+                if not data or data == 'q':
                     break
                 self.client_lock.acquire()
                 for cln in self.cliets_list:
