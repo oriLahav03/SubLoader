@@ -46,6 +46,8 @@ class Server:
             try:
                 data = sc.recv(512).decode()
                 msg = "->" + name + ': ' + data
+                if not data:
+                    break
                 self.client_lock.acquire()
                 for cln in self.cliets_list:
                     if sc not in cln:
@@ -54,17 +56,8 @@ class Server:
                         self.sock_lock.release()
                 self.client_lock.release()
             except:
-                print('client disconected')
+                print(name + 'client disconected')
                 break
-
-            if not data:
-                break
-            try:
-                #sc.sendall(str.encode(reply))
-                pass
-            except:
-                break
-        
         #print("\n", address[0] + ':' + str(address[1]), " disconnected", "\n")
         self.client_lock.acquire()
         self.Thread_count -= 1
