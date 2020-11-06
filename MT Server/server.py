@@ -16,7 +16,7 @@ class Server:
             self.ServerSocket.bind((host, port))
         except socket.error as e:
             print(str(e))
-            exit(1)
+            exit()
 
         print('Waiting for a Connections...\n')
         self.ServerSocket.listen(5)
@@ -30,7 +30,6 @@ class Server:
             Client, address = self.ServerSocket.accept()
             print('Connected to: ' + address[0] + ':' + str(address[1]))
             start_new_thread(self.threaded_client, (Client, address))
-            
             print('Thread Number: ' + str(self.Thread_count))
 
 
@@ -57,15 +56,14 @@ class Server:
                     msg = "->" + name + ': ' + data
                     self.client_lock.acquire()
                     for cln in self.cliets_list:
-                        if sc not in cln:
+                        if addr not in cln:
                             self.sock_lock.acquire()
                             cln[0].sendall(msg.encode())
                             self.sock_lock.release()
                     self.client_lock.release()
                 except:
-                    print(name + 'client disconected')
+                    print('client '+ name +' disconected')
                     break
-            #print("\n", address[0] + ':' + str(address[1]), " disconnected", "\n")
             self.client_lock.acquire()
             self.Thread_count -= 1
             self.cliets_list.remove((sc,addr,name))

@@ -13,18 +13,24 @@ class Client:
             self.sc.connect((host, port))
         except socket.error as e:
             print(str(e))
-            exit(1)
+            exit()
 
     def get_n_print(self):
+        Response = ''
         self.sc_lock.acquire()
-        Response = self.sc.recv(128)
+        try:
+            self.sc.settimeout(0.2)
+            Response = self.sc.recv(128)
+        except socket.timeout:
+            pass
         self.sc_lock.release()
-        print(Response.decode())
+        if Response:
+            print(Response.decode())
 
     def enter_n_send(self):
         inp = input()
         if inp:
-            clnt.sc_lock.acquire()
+            isenter = clnt.sc_lock.acquire()
             self.sc.send(str.encode(inp))
             clnt.sc_lock.release()
         if inp == 'q':
@@ -35,14 +41,14 @@ class Client:
             try:
                 self.get_n_print()
             except Exception as e:
-                print(e)
+                print('Error: '+ str(e))
 
 if __name__ == "__main__":
     clnt = Client()
     clnt.get_n_print()
     clnt.enter_n_send()
     clnt.get_n_print()
-
+    get_msg = start_new_thread(clnt.get_msg_thread,tuple())
     while True:
         try:
             if clnt.enter_n_send():
