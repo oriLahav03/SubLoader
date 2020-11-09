@@ -32,6 +32,12 @@ class Server:
             start_new_thread(self.threaded_client, (Client, address))
             print('Thread Number: ' + str(self.Thread_count))
 
+    def send_to_all(self, from_cln, msg=str):
+        for cln in self.cliets_list:
+            if from_cln not in cln:
+                self.sock_lock.acquire()
+                cln[0].sendall(msg.encode())
+                self.sock_lock.release()
 
     def threaded_client(self, sc, addr):
         try:
@@ -55,15 +61,12 @@ class Server:
                         break
                     msg = "->" + name + ': ' + data
                     self.client_lock.acquire()
-                    for cln in self.cliets_list:
-                        if addr not in cln:
-                            self.sock_lock.acquire()
-                            cln[0].sendall(msg.encode())
-                            self.sock_lock.release()
+                    self.send_to_all(addr,msg)
                     self.client_lock.release()
                 except:
-                    print('client '+ name +' disconected')
                     break
+            print('client: "'+ name +'" disconected')
+            self.send_to_all(addr, name +' logout')
             self.client_lock.acquire()
             self.Thread_count -= 1
             self.cliets_list.remove((sc,addr,name))

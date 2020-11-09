@@ -19,7 +19,7 @@ class Client:
         Response = ''
         self.sc_lock.acquire()
         try:
-            self.sc.settimeout(0.2)
+            self.sc.settimeout(0.1)
             Response = self.sc.recv(128)
         except socket.timeout:
             pass
@@ -41,19 +41,20 @@ class Client:
             try:
                 self.get_n_print()
             except Exception as e:
-                print('Error: '+ str(e))
+                break
+                #print('thread Error: '+ str(e))
 
 if __name__ == "__main__":
     clnt = Client()
     clnt.get_n_print()
     clnt.enter_n_send()
     clnt.get_n_print()
-    get_msg = start_new_thread(clnt.get_msg_thread,tuple())
+    start_new_thread(clnt.get_msg_thread,tuple())
     while True:
         try:
             if clnt.enter_n_send():
                 break
         except Exception as e:
-            print(e)
-            break   
+            print('main Error: '+ str(e))
+            break 
     clnt.sc.close()
