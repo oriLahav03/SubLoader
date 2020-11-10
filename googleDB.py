@@ -13,8 +13,13 @@ firebase = pyrebase.initialize_app(firebaseConfig)
 db = firebase.database()
 auth = firebase.auth()
 
+
 def get_free_ip():
-    ips = db.child('IPS').order_by_child('used').limit_to_first(1).get().val()
+    ips = None
+    try:
+        ips = db.child('IPS').order_by_child('used').limit_to_first(1).get().val()
+    except:
+        print('ERROR: cant get ip...')
     for name, ip in ips.items():
         if ip['used'] is False:
             return name, ip
@@ -29,20 +34,27 @@ def signup(username, email, password, confirm_password):
             print("User successfully created!")
             flag = True
         except:
-            print("Wrong Email or Password input!")
+            print("ERROR: Wrong Email or Password input!")
             flag = False
         if flag is True:
             ip_id, ip = get_free_ip()
-            db.child("Users").child(username).set({'username': username,
-                                                   'ip': ip['ip'],
-                                                   'email': email})
-            db.child("IPS").child(ip_id).update({'used': True})
+            try:
+                db.child("Users").child(email.split('@')[0]).set({'username': username,
+                                                                  'ip': ip['ip'],
+                                                                  'email': email})
+                db.child("IPS").child(ip_id).update({'used': True})
+            except:
+                print("ERROR: cant add new user")
     else:
         print("passwords not match!")
         
         
 def login(email, password):
-    stats = db.child('Users').order_by_child('email').equal_to(email).get().val()
+    stats = None
+    try:
+        stats = db.child('Users').order_by_child('email').equal_to(email).get().val()
+    except:
+        print('ERROR: cant get the stats')
     token = 0
     try:
         token = auth.sign_in_with_email_and_password(email, password)  # Sign up with email and password
@@ -50,7 +62,7 @@ def login(email, password):
         flag = True
     except:
         flag = False
-        print("Wrong Email or Password input!")
+        print("ERROR: Wrong Email or Password input!")
     if flag is True:
         for name, stat in stats.items():
             return name, stat['ip'], token['idToken']
@@ -65,7 +77,11 @@ def delete_user(username, token, email):
 
             
 def del_user(token, email):
-    stats = db.child('Users').order_by_child('email').equal_to(email).get().val()
+    stats = None
+    try:
+        stats = db.child('Users').order_by_child('email').equal_to(email).get().val()
+    except:
+        print('ERROR: cant get the stats')
     try:
         auth.delete_user_account(token)
         flag = True
@@ -73,9 +89,16 @@ def del_user(token, email):
         print("cant delete user")
         flag = False
     if flag is True:
+        ips = None
         for name, stat in stats.items():
-            db.child('Users').child(name).set(None)
-            ips = db.child('IPS').order_by_child('ip').equal_to(stat['ip']).get().val()
-            for ip_id, ip in ips.items():
+            try:
+                db.child('Users').child(name).set(None)
+                ips = db.child('IPS').order_by_child('ip').equal_to(stat['ip']).get().val()
+            except:
+                print('ERROR: cant delete user')
+        for ip_id, ip in ips.items():
+            try:
                 db.child('IPS').child(ip_id).child('used').set('false')
-                return
+            except:
+                print('ERROR: cant change ip to not used')
+            return
