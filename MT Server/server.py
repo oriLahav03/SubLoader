@@ -22,6 +22,8 @@ class Server:
         self.ServerSocket.listen(5)
 
     def accept_clients(self):
+        """accept new client
+        """
         self.cliets_list = []
         self.Thread_count = 0
         self.client_lock = allocate_lock()
@@ -33,6 +35,11 @@ class Server:
             print('Thread Number: ' + str(self.Thread_count))
 
     def send_to_all(self, from_cln, msg=str):
+        """send the msg to the connected clients
+        Args:
+            from_cln (addr): who send the msg
+            msg ([str], optional): the msg to send. Defaults to str.
+        """
         for cln in self.cliets_list:
             if from_cln not in cln:
                 self.sock_lock.acquire()
