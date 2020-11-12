@@ -1,6 +1,6 @@
 import socket
 from _thread import *
-
+from DB.projDB import *
 
 host = '127.0.0.1'
 port = 10000
@@ -10,8 +10,9 @@ address = []
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, db):
         self.ServerSocket = socket.socket()
+        self._gdb = db
         try:
             self.ServerSocket.bind((host, port))
         except socket.error as e:
@@ -20,6 +21,9 @@ class Server:
         print('Waiting for a Connections...\n')
         self.ServerSocket.listen(5)
 
+    def handel_auth(self):
+        pass 
+    
     def accept_clients(self):
         self.cliets_list = []
         self.Thread_count = 0
@@ -68,5 +72,5 @@ class Server:
 
 
 if __name__ == '__main__':
-    srvr = Server()
+    srvr = Server(Google_DB(database, authentication))
     srvr.accept_clients()
