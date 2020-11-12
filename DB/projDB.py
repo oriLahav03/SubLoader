@@ -20,10 +20,10 @@ authentication = firebase.auth()
 # storage = firebase.storage()
 
 #protocols:
-#singup- 01!name!password!email #01!email!s\f
-#login-  02!name\email!password
+#singup- 01email!name!password!conf password #01email\err msg!s\f
+#login-  02name\email!password               #02s\f
 
-class Connection:
+'''class Connection:
     def __init__(self, db):
         self.sc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.g_db = db
@@ -42,13 +42,14 @@ class Connection:
         if(self.g_db.handel_singup(s_up)):
             self.sc.sendall(b('01!'+msg[1]+'!s').encode())
         else:
-            self.sc.sendall(('01!'+msg[1]+'!f').encode())
+            self.sc.sendall(('01!'+msg[1]+'!f').encode())'''
         
 class Singup:
-    def __init__(self, usrn, pw, email):
+    def __init__(self, email, usrn, pw, conf):
         self.username = usrn
         self.password = pw
         self.email = email
+        self.conf_pw = conf
 
 class Login:
     def __init__(self, pw, email):
@@ -60,17 +61,30 @@ class Google_DB:
         self.db = db
         self.auth = auth
 
-    def handel_singup(self, s_up = Singup):
-        try:
-            self.auth.create_user_with_email_and_password(s_up.email, s_up.password)  # Sign up with email and password
-            print("User successfully created!")
-        except:
-            print("Email already exists!")
-            return False
-        return True
+    def singup(self, s_up = Singup):
+        if s_up.password == s_up.conf_pw:
+            try:
+                self.auth.create_user_with_email_and_password(s_up.email, s_up.password)  # Sign up with email and password
+                print("User successfully created!")
+                #flag = True
+            except Exception as e:
+                print("ERROR: Wrong Email or Password input!")
+                return False, str(e)
+                #flag = False
+
+        #if flag:
+            ip_id, ip = get_free_ip()
+            user_info = catch_exception_put_db(
+                self.db.child("Users").child(s_up.email.split('@')[0]).set({'username': s_up.username, 'ip': ip,
+                                                                  'email': s_up.email}), 'ERROR: cant add new user')
+            update_ip = catch_exception_put_db(db.child("IPS").child(ip_id).update({'used': True}), 'ERROR: cant change parameter')
+            return True,'User successfully created!'
+        else:
+            return False, "passwords not match!"
     
     def handel_login(self, l_in):
         pass
 
 if __name__ == '__main__':
-    con = Connection(Google_DB(database, authentication))
+    #con = Connection(Google_DB(database, authentication))
+    pass

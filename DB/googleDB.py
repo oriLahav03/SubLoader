@@ -26,8 +26,10 @@ def catch_exception_get_db(schema, error):
 def catch_exception_put_db(schema, error):
     try:
         schema
+        return True
     except:
         print(error)
+        return False
 
 
 def get_free_ip():
