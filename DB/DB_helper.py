@@ -15,7 +15,7 @@ auth = firebase.auth()
 
 
 def catch_exception_get_db(schema, error):
-    values = None
+    values = False
     try:
         values = schema
     except:
@@ -42,7 +42,7 @@ def get_free_ip():
         return 'no'
 
 
-def signup(username, email, password, confirm_password):
+'''def signup(username, email, password, confirm_password):
     if password == confirm_password:
         try:
             auth.create_user_with_email_and_password(email, password)  # Sign up with email and password
@@ -59,7 +59,7 @@ def signup(username, email, password, confirm_password):
                                                                   'email': email}), 'ERROR: cant add new user')
             catch_exception_put_db(db.child("IPS").child(ip_id).update({'used': True}), 'ERROR: cant change parameter')
     else:
-        print("passwords not match!")
+        print("passwords not match!")'''
 
 
 def login(email, password):

@@ -1,3 +1,4 @@
+from DB.DB_helper import *
 import pyrebase
 import socket
 
@@ -52,7 +53,7 @@ class Singup:
         self.conf_pw = conf
 
 class Login:
-    def __init__(self, pw, email):
+    def __init__(self, email, pw):
         self.password = pw
         self.email = email
 
@@ -82,8 +83,19 @@ class Google_DB:
         else:
             return False, "passwords not match!"
     
-    def handel_login(self, l_in):
-        pass
+    def login(self, l_in = Login):
+        #login auth section
+        try:
+            token = auth.sign_in_with_email_and_password(l_in.email, l_in.password)  # Sign up with email and password
+            print("User successfully logged in!")
+        except Exception as e:
+            print("ERROR: Wrong Email or Password input!")
+            return False, str(e) 
+        #get user data section
+        stats = catch_exception_get_db(db.child('Users').order_by_child('email').equal_to(l_in.email).get().val(),
+                                   'ERROR: cant get the stats')
+        stat = stats.popitem()
+        return True, (stat[0], stat[1]['ip'], token['idToken'])
 
 if __name__ == '__main__':
     #con = Connection(Google_DB(database, authentication))
