@@ -58,8 +58,8 @@ class Server:
     def new_auth(self,sc= socket.socket):
         out = True
         while out:
-            code = sc.recv(2)
-            req_msg = sc.recv(256)
+            code = sc.recv(2).decode()
+            req_msg = sc.recv(256).decode()
             req = req_msg.split('!')
             if(int(code) == 1):
                out =  self.handel_singup(sc,req)
@@ -67,6 +67,7 @@ class Server:
                 out = self.handel_login(sc,req)
             else:
                 sc.send(b'00unknown code')
+        return req_msg[0]
                 
     def send_to_all(self, from_cln, msg=str):
         """send the msg to the connected clients
@@ -82,10 +83,10 @@ class Server:
 
     def threaded_client(self, sc, addr):
         try:
-            sc.send(str.encode('Welcome to the Server\nsend ur name to chat (16 leters max)'))
-            name = sc.recv(16).decode()
-            sc.sendall(str.encode("Hi " + name + '\nu can chat now (enter q for exit)'))
-            self.new_auth(sc)
+            #sc.send(str.encode('Welcome to the Server\nsend ur name to chat (16 leters max)'))
+            #name = sc.recv(16).decode()
+            #sc.sendall(str.encode("Hi " + name + '\nu can chat now (enter q for exit)'))
+            name = self.new_auth(sc)
             is_connected = True
         except :
             is_connected = False
