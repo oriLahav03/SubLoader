@@ -1,6 +1,6 @@
 import socket
 from _thread import *
-
+from DB.projDB import *
 
 host = '127.0.0.1'
 port = 10000
@@ -10,8 +10,9 @@ address = []
 
 
 class Server:
-    def __init__(self):
-        self.ServerSocket = socket.socket()
+    def __init__(self,db = Google_DB):
+        self.gdb=db #db
+        self.ServerSocket = socket.socket() #main socket
         try:
             self.ServerSocket.bind((host, port))
         except socket.error as e:
@@ -21,6 +22,26 @@ class Server:
         print('Waiting for a Connections...\n')
         self.ServerSocket.listen(5)
 
+    def handel_singup(self, cln_sc, req = list):
+        s_up = Singup(req[0],req[1], req[2], req[3])
+        res = self.gdb.singup(s_up)
+        if(res[0]):
+            cln_sc.sendall(('01'+s_up.email+'!s').encode())
+            return False
+        else:
+            cln_sc.sendall(('01'+res[1]+'!f').encode())
+            return True
+
+    def handel_login(self,cln_sc, req = list):
+        l_in = Login(req[0],req[1])
+        res = self.gdb.login(l_in)
+        if(res[0]):
+            user_info = res[1][0] +'!'+ res[1][1]
+            cln_sc.sendall(('01'++'!s').encode())
+            return False
+        else:
+            cln_sc.sendall(('01'+res[1]+'!f').encode())
+            return True
     def accept_clients(self):
         """accept new client
         """
@@ -34,6 +55,19 @@ class Server:
             start_new_thread(self.threaded_client, (Client, address))
             print('Thread Number: ' + str(self.Thread_count))
 
+    def new_auth(self,sc= socket.socket):
+        out = True
+        while out:
+            code = sc.recv(2)
+            req_msg = sc.recv(256)
+            req = req_msg.split('!')
+            if(int(code) == 1):
+               out =  self.handel_singup(sc,req)
+            elif (int(code) == 2):
+                out = self.handel_login(sc,req)
+            else:
+                sc.send(b'00unknown code')
+                
     def send_to_all(self, from_cln, msg=str):
         """send the msg to the connected clients
         Args:
@@ -51,6 +85,7 @@ class Server:
             sc.send(str.encode('Welcome to the Server\nsend ur name to chat (16 leters max)'))
             name = sc.recv(16).decode()
             sc.sendall(str.encode("Hi " + name + '\nu can chat now (enter q for exit)'))
+            self.new_auth(sc)
             is_connected = True
         except :
             is_connected = False
@@ -80,8 +115,6 @@ class Server:
             self.client_lock.release()
             sc.close()
 
-
-
 if __name__ == '__main__':
-    srvr = Server()
+    srvr = Server(Google_DB(database, authentication))
     srvr.accept_clients()
