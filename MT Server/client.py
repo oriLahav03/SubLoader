@@ -4,6 +4,7 @@ from _thread import *
 host = '127.0.0.1'
 port = 10000
 
+
 class Client:
     def __init__(self):
         self.sc = socket.socket()
@@ -43,12 +44,49 @@ class Client:
             except Exception as e:
                 break
                 #print('thread Error: '+ str(e))
+    def make_auth(self):
+        """
+        docstring
+        """
+        while True:
+            c = int(input('Welcome: \n1-singup\n2-login'))
+            if c == 1:
+                email = input("enter email: ")
+                username = input("enter username: ")
+                pw = input("enter password")
+                con_pw = input("enter confirm passsword")
+                self.sc.sendall(str('01'+email+'!'+username+'!'+pw+'!'+con_pw).encode())
 
+                ret_c = self.sc.recv(2)
+                ret_msg = self.sc.recv(128).decode().split('!')
+                if(ret_msg[1] == 's'):
+                    print('secccesful new user with email '+ret_msg[0])
+                else:
+                    print('unsecccesful new user\n'+ret_msg[0])
+                    continue
+            elif c == 2:
+                email = input("enter email: ")
+                username = input("enter username: ")
+                self.sc.sendall(str('01'+email+'!'+pw).encode())
+
+                ret = self.sc.recv(3).decode()
+                if(ret[2]=='s'):
+                    print('login secccesful')
+                else:
+                    print('login unsecccesful \nusername or password incorrect')
+                    continue
+            else:
+                print('not an option')
+                continue
+
+            break
+            
 if __name__ == "__main__":
     clnt = Client()
-    clnt.get_n_print()
-    clnt.enter_n_send()
-    clnt.get_n_print()
+    clnt.make_auth()
+    #clnt.get_n_print()
+    #clnt.enter_n_send()
+    #clnt.get_n_print()
     start_new_thread(clnt.get_msg_thread,tuple())
     while True:
         try:

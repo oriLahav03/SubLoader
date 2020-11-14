@@ -1,7 +1,5 @@
 from DB.DB_helper import *
 import pyrebase
-import socket
-
 
 HOST = '127.0.0.1'
 PORT = 4000
@@ -15,7 +13,6 @@ firebaseConfig = {'apiKey': "AIzaSyAsWlvXK-lblE2C9QWt8HNwKKCO6GsB26E",
     'measurementId': "G-2WBR7EQDYC"}
 
 firebase = pyrebase.initialize_app(firebaseConfig)
-
 database = firebase.database()
 authentication = firebase.auth()
 # storage = firebase.storage()
@@ -74,7 +71,7 @@ class Google_DB:
                 #flag = False
 
         #if flag:
-            ip_id, ip = get_free_ip()
+            ip_id, ip = get_free_ip(self.db)
             user_info = catch_exception_put_db(
                 self.db.child("Users").child(s_up.email.split('@')[0]).set({'username': s_up.username, 'ip': ip,
                                                                   'email': s_up.email}), 'ERROR: cant add new user')
