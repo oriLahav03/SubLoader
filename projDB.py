@@ -1,4 +1,4 @@
-from DB.DB_helper import *
+from DB_helper import *
 import pyrebase
 
 HOST = '127.0.0.1'
@@ -18,8 +18,8 @@ authentication = firebase.auth()
 # storage = firebase.storage()
 
 #protocols:
-#singup- 01email!name!password!conf password #01email\err msg!s\f
-#login-  02name\email!password               #02s\f
+#singup- 01email!name!password!conf password #01s\femail\err msg!ip\none
+#login-  02name\email!password               #02s\f(username!ip)\err
         
 class Singup:
     def __init__(self, email, usrn, pw, conf):
@@ -55,7 +55,7 @@ class Google_DB:
                 self.db.child("Users").child(s_up.email.split('@')[0]).set({'username': s_up.username, 'ip': ip,
                                                                   'email': s_up.email}), 'ERROR: cant add new user')
             update_ip = catch_exception_put_db(db.child("IPS").child(ip_id).update({'used': True}), 'ERROR: cant change parameter')
-            return True,'User successfully created!'
+            return True, ip
         else:
             return False, "passwords not match!"
     

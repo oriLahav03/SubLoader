@@ -53,25 +53,27 @@ class Client:
             if c == 1:
                 email = input("enter email: ")
                 username = input("enter username: ")
-                pw = input("enter password")
-                con_pw = input("enter confirm passsword")
+                pw = input("enter password: ")
+                con_pw = input("enter confirm passsword: ")
                 self.sc.sendall(str('01'+email+'!'+username+'!'+pw+'!'+con_pw).encode())
 
-                ret_c = self.sc.recv(2)
-                ret_msg = self.sc.recv(128).decode().split('!')
-                if(ret_msg[1] == 's'):
-                    print('secccesful new user with email '+ret_msg[0])
+                ret_c = self.sc.recv(3).decode()
+                if(ret_c[2] == 's'):
+                    ret_msg = self.sc.recv(128).decode().split('!')
+                    print('secccesful new user \nwith email '+ret_msg[0] + ' and ip ' + ret_msg[1])
                 else:
-                    print('unsecccesful new user\n'+ret_msg[0])
+                    print('unsecccesful new user\n'+ self.sc.recv(128).decode())
                     continue
             elif c == 2:
                 email = input("enter email: ")
                 username = input("enter username: ")
                 self.sc.sendall(str('01'+email+'!'+pw).encode())
 
-                ret = self.sc.recv(3).decode()
-                if(ret[2]=='s'):
+                ret_c = self.sc.recv(3).decode()
+                if(ret_c[2]=='s'):
                     print('login secccesful')
+                    ret_msg = self.sc.recv(128).decode().split('!') 
+                    print('username: '+ret_msg[0] + ' ip: ' + ret_msg)
                 else:
                     print('login unsecccesful \nusername or password incorrect')
                     continue

@@ -1,6 +1,6 @@
 import socket
 from _thread import *
-from DB.projDB import *
+from projDB import *
 
 host = '127.0.0.1'
 port = 10000
@@ -26,10 +26,10 @@ class Server:
         s_up = Singup(req[0],req[1], req[2], req[3])
         res = self.gdb.singup(s_up)
         if(res[0]):
-            cln_sc.sendall(('01'+s_up.email+'!s').encode())
+            cln_sc.sendall(('01s'+s_up.email+res[1]).encode())
             return False
         else:
-            cln_sc.sendall(('01'+res[1]+'!f').encode())
+            cln_sc.sendall(('01f'+res[1]).encode())
             return True
 
     def handel_login(self,cln_sc, req = list):
@@ -37,11 +37,12 @@ class Server:
         res = self.gdb.login(l_in)
         if(res[0]):
             user_info = res[1][0] +'!'+ res[1][1]
-            cln_sc.sendall(('01'++'!s').encode())
+            cln_sc.sendall(('01s'+user_info).encode())
             return False
         else:
-            cln_sc.sendall(('01'+res[1]+'!f').encode())
+            cln_sc.sendall(('01f'+res[1]).encode())
             return True
+
     def accept_clients(self):
         """accept new client
         """
@@ -62,7 +63,7 @@ class Server:
             req_msg = sc.recv(256).decode()
             req = req_msg.split('!')
             if(int(code) == 1):
-               out =  self.handel_singup(sc,req)
+                out =  self.handel_singup(sc,req)
             elif (int(code) == 2):
                 out = self.handel_login(sc,req)
             else:
@@ -83,9 +84,6 @@ class Server:
 
     def threaded_client(self, sc, addr):
         try:
-            #sc.send(str.encode('Welcome to the Server\nsend ur name to chat (16 leters max)'))
-            #name = sc.recv(16).decode()
-            #sc.sendall(str.encode("Hi " + name + '\nu can chat now (enter q for exit)'))
             name = self.new_auth(sc)
             is_connected = True
         except :

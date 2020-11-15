@@ -1,3 +1,5 @@
 .vscode
 *.msi
 *.txt
+DB
+__pycache__
