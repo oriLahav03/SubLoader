@@ -54,7 +54,7 @@ class Google_DB:
             user_info = catch_exception_put_db(
                 self.db.child("Users").child(s_up.email.split('@')[0]).set({'username': s_up.username, 'ip': ip,
                                                                   'email': s_up.email}), 'ERROR: cant add new user')
-            update_ip = catch_exception_put_db(db.child("IPS").child(ip_id).update({'used': True}), 'ERROR: cant change parameter')
+            update_ip = catch_exception_put_db(self.db.child("IPS").child(ip_id).update({'used': True}), 'ERROR: cant change parameter')
             return True, ip
         else:
             return False, "passwords not match!"
@@ -62,16 +62,21 @@ class Google_DB:
     def login(self, l_in = Login):
         #login auth section
         try:
-            token = auth.sign_in_with_email_and_password(l_in.email, l_in.password)  # Sign up with email and password
+            token = self.auth.sign_in_with_email_and_password(l_in.email, l_in.password)  # Sign up with email and password
             print("User successfully logged in!")
         except Exception as e:
             print("ERROR: Wrong Email or Password input!")
             return False, str(e) 
         #get user data section
-        stats = catch_exception_get_db(db.child('Users').order_by_child('email').equal_to(l_in.email).get().val(),
+        stats = catch_exception_get_db(self.db.child('Users').order_by_child('email').equal_to(l_in.email).get().val(),
                                    'ERROR: cant get the stats')
         stat = stats.popitem()
-        return True, (stat[0], stat[1]['ip'], token['idToken'])
+        return True, (stat[0], stat[1]['ip'], token['idToken'])# if the action succed and the user info (name,ip,token)
 
 if __name__ == '__main__':
-    pass
+    #tester
+    ipsresulte = get_free_ip(database)
+    print(ipsresulte)
+    gdb = Google_DB(database,authentication)
+    loginres = gdb.singup(Singup("ilay@gmail.com", 'gg', 'ilay120', 'ilay120'))
+    print(loginres)

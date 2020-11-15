@@ -10,10 +10,10 @@ def catch_exception_get_db(schema, error):
 def catch_exception_put_db(schema, error):
     try:
         schema
-        return True
     except:
         print(error)
         return False
+    return True
 
 
 def get_free_ip(db):
@@ -53,3 +53,6 @@ def del_user(db,auth, token, email):
         ip = ips.popitem()
         catch_exception_put_db(db.child('IPS').child(ip[0]).child('used').set(False),
                                'ERROR: cant change ip to not used')
+
+
+    
