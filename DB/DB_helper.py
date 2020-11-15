@@ -26,42 +26,6 @@ def get_free_ip(db):
         return 'no free ip'
 
 
-'''def signup(username, email, password, confirm_password):
-    if password == confirm_password:
-        try:
-            auth.create_user_with_email_and_password(email, password)  # Sign up with email and password
-            print("User successfully created!")
-            flag = True
-        except:
-            print("ERROR: Wrong Email or Password input!")
-            flag = False
-
-        if flag is True:
-            ip_id, ip = get_free_ip()
-            catch_exception_put_db(
-                db.child("Users").child(email.split('@')[0]).set({'username': username, 'ip': ip,
-                                                                  'email': email}), 'ERROR: cant add new user')
-            catch_exception_put_db(db.child("IPS").child(ip_id).update({'used': True}), 'ERROR: cant change parameter')
-    else:
-        print("passwords not match!")
-
-
-def login(email, password):
-    token = None
-    stats = catch_exception_get_db(db.child('Users').order_by_child('email').equal_to(email).get().val(),
-                                   'ERROR: cant get the stats')
-    try:
-        token = auth.sign_in_with_email_and_password(email, password)  # Sign up with email and password
-        print("User successfully logged in!")
-        flag = True
-    except:
-        flag = False
-        print("ERROR: Wrong Email or Password input!")
-    stat = stats.popitem()
-    if flag is True:
-        return stat[0], stat[1]['ip'], token['idToken']'''
-
-
 def delete_user(username, token, email):
     sure = input("to verify the delete of the account type the username <" + username + ">: ")
     if sure == username:

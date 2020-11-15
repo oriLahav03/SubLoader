@@ -20,27 +20,6 @@ authentication = firebase.auth()
 #protocols:
 #singup- 01email!name!password!conf password #01email\err msg!s\f
 #login-  02name\email!password               #02s\f
-
-'''class Connection:
-    def __init__(self, db):
-        self.sc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.g_db = db
-        try:
-            self.sc.connect((HOST,PORT))
-        except Exception as e:
-            print("Err connection server:\n" + e)
-            exit(1)
-
-    def get_request(self):
-        msg = self.sc.recv(1024)
-        msg = msg.split('!')
-    
-    def singup(self, msg = list):
-        s_up = singup(msg[0],msg[1], msg[2])
-        if(self.g_db.handel_singup(s_up)):
-            self.sc.sendall(b('01!'+msg[1]+'!s').encode())
-        else:
-            self.sc.sendall(('01!'+msg[1]+'!f').encode())'''
         
 class Singup:
     def __init__(self, email, usrn, pw, conf):
@@ -95,5 +74,4 @@ class Google_DB:
         return True, (stat[0], stat[1]['ip'], token['idToken'])
 
 if __name__ == '__main__':
-    #con = Connection(Google_DB(database, authentication))
     pass

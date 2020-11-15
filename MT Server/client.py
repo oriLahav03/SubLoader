@@ -43,7 +43,7 @@ class Client:
                 self.get_n_print()
             except Exception as e:
                 break
-                #print('thread Error: '+ str(e))
+
     def make_auth(self):
         """
         docstring
@@ -84,9 +84,6 @@ class Client:
 if __name__ == "__main__":
     clnt = Client()
     clnt.make_auth()
-    #clnt.get_n_print()
-    #clnt.enter_n_send()
-    #clnt.get_n_print()
     start_new_thread(clnt.get_msg_thread,tuple())
     while True:
         try:
