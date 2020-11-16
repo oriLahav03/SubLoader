@@ -19,4 +19,4 @@ class update_table(Exception):
         self.err = msg
         self.table = table_name
     def __str__(self):
-        return 'error update'+self.table+ " " +self.err
+        return 'error update '+self.table+ " " +self.err
