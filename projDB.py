@@ -49,7 +49,7 @@ class Google_DB:
                                        'ERROR: cant get the stats')
         if(stats):
             return stats.popitem()
-        else: # need to raise exeption or something but for now...
+        else: #TODO need to raise exeption or something but for now...
             return False
     def singup(self, s_up=Singup):
         if s_up.password == s_up.conf_pw:

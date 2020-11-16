@@ -23,6 +23,15 @@ class Server:
         self.ServerSocket.listen(5)
 
     def handel_singup(self, cln_sc, req = list):
+        """handle singup request from client
+            get the data from socket and send to db class
+        Args:
+            cln_sc ([socket]): [client socket to send results]
+            req ([list]): [list of paramerts from socket]. Defaults to list.
+
+        Returns:
+            [bool]: [T for secceed F for fail]
+        """
         s_up = Singup(req[0],req[1], req[2], req[3])
         res = self.gdb.singup(s_up)
         if(res[0]):
@@ -33,6 +42,15 @@ class Server:
             return True
 
     def handel_login(self,cln_sc, req = list):
+        """handle login request from client
+            get the data from socket and send to db class
+        Args:
+            cln_sc ([socket]): [client socket to send results]
+            req ([list]): [list of paramerts from socket]. Defaults to list.
+
+        Returns:
+            [bool]: [T for secceed F for fail]
+        """
         l_in = Login(req[0],req[1])
         res = self.gdb.login(l_in)
         if(res[0]):
@@ -57,6 +75,14 @@ class Server:
             print('Thread Number: ' + str(self.Thread_count))
 
     def new_auth(self,sc= socket.socket):
+        """hanlde new client that want to enter the server
+
+        Args:
+            sc ([socket]): [client socket]. Defaults to socket.socket.
+
+        Returns:
+            [data]: [user info]
+        """
         out = True
         while out:
             code = sc.recv(2).decode()
