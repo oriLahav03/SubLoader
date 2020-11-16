@@ -58,28 +58,3 @@ def delete_user(username, token, email):
         print('i guess you not that sure...')
 
 
-def del_user(token, email):
-    """
-    the function handle all the user delete
-    :param token: the user token
-    :param email: the email of the user
-    :return: None
-    """
-    try:
-        auth.delete_user_account(token)
-        flag = True
-    except:
-        print("cant delete user")
-        flag = False
-
-    if flag is True:
-        stats = catch_exception_get_db(db.child('Users').order_by_child('email').equal_to(email).get().val(),
-                                       'ERROR: cant get the stats')
-        stat = stats.popitem()
-        del_user_info = catch_exception_put_db(db.child('Users').child(stat[0]).set(None), 'ERROR: cant delete user')
-        ips = catch_exception_get_db(
-            db.child('IPS').order_by_child('ip').equal_to(stat[1]['ip']).get().val(),
-            'ERROR: cant get ip')
-        ip = ips.popitem()
-        catch_exception_put_db(db.child('IPS').child(ip[0]).child('used').set(False),
-                               'ERROR: cant change ip to not used')

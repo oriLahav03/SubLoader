@@ -15,15 +15,15 @@ firebaseConfig = {'apiKey': "AIzaSyAsWlvXK-lblE2C9QWt8HNwKKCO6GsB26E",
 firebase = pyrebase.initialize_app(firebaseConfig)
 database = firebase.database()
 authentication = firebase.auth()
-
-
 # storage = firebase.storage()
 
 # protocols:
 # singup- 01email!name!password!conf password #01s\femail\err msg!ip\none
 # login-  02name\email!password               #02s\f(username!ip)\err
-# new room- 
-# join room-
+# delete user 03email!password
+# new room- 10size(3bytes)#roomname#roomadmin#password(optional)#mustpassword
+# join room- 11
+# leave room- 12
 
 class Singup:
     def __init__(self, email, usrn, pw, conf):
@@ -85,7 +85,30 @@ class Google_DB:
         stat = self.__get_userinfo_with_email(l_in.email)
         return True, (
             stat[0], stat[1]['ip'], token['idToken'])  # if the action succeed and the user info (name,ip,token)
+    
+    def del_user(self, token, email):
+        """
+        the function handle all the user delete
+        :param token: the user token
+        :param email: the email of the user
+        :return: None
+        """
+        try:
+            auth.delete_user_account(token)
+            flag = True
+        except:
+            print("cant delete user")
+            flag = False
 
+        if flag is True:
+            stat = self.__get_userinfo_with_email(email)
+            del_user_info = catch_exception_put_db(db.child('Users').child(stat[0]).set(None), 'ERROR: cant delete user')
+            ips = catch_exception_get_db(
+                self.db.child('IPS').order_by_child('ip').equal_to(stat[1]['ip']).get().val(),
+                'ERROR: cant get ip')
+            ip = ips.popitem()
+            catch_exception_put_db(self.db.child('IPS').child(ip[0]).child('used').set(False),
+                                'ERROR: cant change ip to not used')
 
 if __name__ == '__main__':
     # tester
