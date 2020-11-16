@@ -1,3 +1,5 @@
+from costumExeptions import *
+
 def catch_exception_get_db(schema, error):
     """
     the function manage all the schemas to the firebase database that related to get data from the database
