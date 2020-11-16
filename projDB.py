@@ -22,7 +22,8 @@ authentication = firebase.auth()
 # protocols:
 # singup- 01email!name!password!conf password #01s\femail\err msg!ip\none
 # login-  02name\email!password               #02s\f(username!ip)\err
-
+# new room- 
+# join room-
 
 class Singup:
     def __init__(self, email, usrn, pw, conf):
@@ -43,6 +44,13 @@ class Google_DB:
         self.db = db
         self.auth = auth
 
+    def __get_userinfo_with_email(self, email):
+        stats = catch_exception_get_db(self.db.child('Users').order_by_child('email').equal_to(email).get().val(),
+                                       'ERROR: cant get the stats')
+        if(stats):
+            return stats.popitem()
+        else: # need to raise exeption or something but for now...
+            return False
     def singup(self, s_up=Singup):
         if s_up.password == s_up.conf_pw:
             try:
@@ -74,9 +82,7 @@ class Google_DB:
             print("ERROR: Wrong Email or Password input!")
             return False, str(e)
             # get user data section
-        stats = catch_exception_get_db(self.db.child('Users').order_by_child('email').equal_to(l_in.email).get().val(),
-                                       'ERROR: cant get the stats')
-        stat = stats.popitem()
+        stat = self.__get_userinfo_with_email(l_in.email)
         return True, (
             stat[0], stat[1]['ip'], token['idToken'])  # if the action succeed and the user info (name,ip,token)
 
