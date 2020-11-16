@@ -5,7 +5,7 @@ def catch_exception_put_db(schema, error):
         print(error)
 
 
-def create_ip_table():
+def create_ip_table(db):
     counter = 1
     while counter <= 255:
         catch_exception_put_db(db.child("IPS").child("ip" + str(counter)).set({

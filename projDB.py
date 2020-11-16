@@ -102,7 +102,7 @@ class Google_DB:
 
         if flag is True:
             stat = self.__get_userinfo_with_email(email)
-            del_user_info = catch_exception_put_db(db.child('Users').child(stat[0]).set(None), 'ERROR: cant delete user')
+            del_user_info = catch_exception_put_db(self.db.child('Users').child(stat[0]).set(None), 'ERROR: cant delete user')
             ips = catch_exception_get_db(
                 self.db.child('IPS').order_by_child('ip').equal_to(stat[1]['ip']).get().val(),
                 'ERROR: cant get ip')
