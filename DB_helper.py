@@ -26,7 +26,7 @@ def catch_exception_put_db(schema, error):
         schema
     except:
         print(error)
-        return False
+        raise update_table_err(str(error))
     return True
 
 
@@ -42,7 +42,7 @@ def get_free_ip(db):
     if ip[1]['used'] is False:
         return ip[0], ip[1]['ip']
     else:
-        return 'no free ip'
+        raise get_ip_err()
 
 
 def delete_user(username, token, email):
