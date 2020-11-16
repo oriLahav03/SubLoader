@@ -1,0 +1,6 @@
+.vscode
+*.msi
+*.txt
+.idea
+DB
+__pycache__
