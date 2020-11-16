@@ -15,19 +15,21 @@ firebaseConfig = {'apiKey': "AIzaSyAsWlvXK-lblE2C9QWt8HNwKKCO6GsB26E",
 firebase = pyrebase.initialize_app(firebaseConfig)
 database = firebase.database()
 authentication = firebase.auth()
+
 # storage = firebase.storage()
 
 # protocols:
-# singup- 01email!name!password!conf password #01s\femail\err msg!ip\none
-# login-  02name\email!password               #02s\f(username!ip)\err
-# delete user 03email!password
-# new room- 10size(3bytes)#roomname#roomadmin#password(optional)#mustpassword
-# join room- 11
-# leave room- 12
+# singup -> 01email!name!password!conf password #01s\femail\err msg!ip\none
+# login ->  02name\email!password               #02s\f(username!ip)\err
+# delete user -> 03email!password
+# new room -> 10size(3bytes)#roomname#roomadmin#password(optional)#mustpassword
+# join room -> 11
+# leave room -> 12
+
 
 class Singup:
-    def __init__(self, email, usrn, pw, conf):
-        self.username = usrn
+    def __init__(self, email, username, pw, conf):
+        self.username = username
         self.password = pw
         self.email = email
         self.conf_pw = conf
@@ -46,12 +48,13 @@ class Google_DB:
 
     def __get_userinfo_with_email(self, email):
         stats = catch_exception_get_db(self.db.child('Users').order_by_child('email').equal_to(email).get().val(),
-                                       'ERROR: cant get the stats')
-        if(stats):
+                                       "ERROR: can't get the stats")
+        if stats:
             return stats.popitem()
-        else: #TODO need to raise exeption or something but for now...
+        else:  # TODO need to raise exception or something but for now...
             return False
-    def singup(self, s_up=Singup):
+
+    def singup(self, s_up: Singup):
         if s_up.password == s_up.conf_pw:
             try:
                 self.auth.create_user_with_email_and_password(s_up.email,
@@ -65,14 +68,14 @@ class Google_DB:
             user_info = catch_exception_put_db(
                 self.db.child("Users").child(s_up.email.split('@')[0]).set({'username': s_up.username, 'ip': ip,
                                                                             'email': s_up.email}),
-                'ERROR: cant add new user')
+                "ERROR: can't add new user")
             update_ip = catch_exception_put_db(self.db.child("IPS").child(ip_id).update({'used': True}),
-                                               'ERROR: cant change parameter')
+                                               "ERROR: can't change parameter")
             return True, ip
         else:
             return False, "passwords not match!"
 
-    def login(self, l_in=Login):
+    def login(self, l_in: Login):
         # login auth section
         try:
             token = self.auth.sign_in_with_email_and_password(l_in.email,
@@ -85,7 +88,7 @@ class Google_DB:
         stat = self.__get_userinfo_with_email(l_in.email)
         return True, (
             stat[0], stat[1]['ip'], token['idToken'])  # if the action succeed and the user info (name,ip,token)
-    
+
     def del_user(self, token, email):
         """
         the function handle all the user delete
@@ -94,26 +97,29 @@ class Google_DB:
         :return: None
         """
         try:
-            auth.delete_user_account(token)
+            self.auth.delete_user_account(token)
             flag = True
         except:
-            print("cant delete user")
+            print("can't delete user")
             flag = False
 
         if flag is True:
             stat = self.__get_userinfo_with_email(email)
-            del_user_info = catch_exception_put_db(self.db.child('Users').child(stat[0]).set(None), 'ERROR: cant delete user')
+            del_user_info = catch_exception_put_db(self.db.child('Users').child(stat[0]).set(None),
+                                                   "ERROR: can't delete user")
             ips = catch_exception_get_db(
                 self.db.child('IPS').order_by_child('ip').equal_to(stat[1]['ip']).get().val(),
-                'ERROR: cant get ip')
+                "ERROR: can't get ip")
             ip = ips.popitem()
             catch_exception_put_db(self.db.child('IPS').child(ip[0]).child('used').set(False),
-                                'ERROR: cant change ip to not used')
+                                   "ERROR: can't change ip to not used")
+            print("User successfully deleted!")
+
 
 if __name__ == '__main__':
     # tester
-    ipsresulte = get_free_ip(database)
-    print(ipsresulte)
+    free_ip_result = get_free_ip(database)
+    print(free_ip_result)
     gdb = Google_DB(database, authentication)
-    loginres = gdb.singup(Singup("ilay@gmail.com", 'gg', 'ilay120', 'ilay120'))
-    print(loginres)
+    response = gdb.singup(Singup("ori@gmail.com", "ori", "ilay120", "ilay120"))
+    print(response)

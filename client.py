@@ -31,9 +31,9 @@ class Client:
     def enter_n_send(self):
         inp = input()
         if inp:
-            isenter = clnt.sc_lock.acquire()
+            isenter = clint.sc_lock.acquire()
             self.sc.send(str.encode(inp))
-            clnt.sc_lock.release()
+            clint.sc_lock.release()
         if inp == 'q':
             return True
 
@@ -41,7 +41,7 @@ class Client:
         while True:
             try:
                 self.get_n_print()
-            except Exception as e:
+            except:
                 break
 
     def make_auth(self):
@@ -54,44 +54,45 @@ class Client:
                 email = input("enter email: ")
                 username = input("enter username: ")
                 pw = input("enter password: ")
-                con_pw = input("enter confirm passsword: ")
-                self.sc.sendall(str('01'+email+'!'+username+'!'+pw+'!'+con_pw).encode())
+                con_pw = input("enter confirm password: ")
+                self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
 
                 ret_c = self.sc.recv(3).decode()
-                if(ret_c[2] == 's'):
+                if ret_c[2] == 's':
                     ret_msg = self.sc.recv(128).decode().split('!')
-                    print('secccesful new user \nwith email '+ret_msg[0] + ' and ip ' + ret_msg[1])
+                    print('successful new user \nwith email ' + ret_msg[0] + ' and ip ' + ret_msg[1])
                 else:
-                    print('unsecccesful new user\n'+ self.sc.recv(128).decode())
+                    print('unsuccessful new user\n' + self.sc.recv(128).decode())
                     continue
             elif c == 2:
                 email = input("enter email: ")
                 username = input("enter username: ")
-                self.sc.sendall(str('01'+email+'!'+pw).encode())
+                self.sc.sendall(str('01' + email + '!' + pw).encode())
 
                 ret_c = self.sc.recv(3).decode()
-                if(ret_c[2]=='s'):
-                    print('login secccesful')
+                if ret_c[2] == 's':
+                    print('login successful')
                     ret_msg = self.sc.recv(128).decode().split('!') 
-                    print('username: '+ret_msg[0] + ' ip: ' + ret_msg)
+                    print('username: ' + ret_msg[0] + ' ip: ' + str(ret_msg))
                 else:
-                    print('login unsecccesful \nusername or password incorrect')
+                    print('login unsuccessful \nusername or password incorrect')
                     continue
             else:
                 print('not an option')
                 continue
 
             break
-            
+
+
 if __name__ == "__main__":
-    clnt = Client()
-    clnt.make_auth()
-    start_new_thread(clnt.get_msg_thread,tuple())
+    clint = Client()
+    clint.make_auth()
+    start_new_thread(clint.get_msg_thread, tuple())
     while True:
         try:
-            if clnt.enter_n_send():
+            if clint.enter_n_send():
                 break
         except Exception as e:
-            print('main Error: '+ str(e))
+            print('main Error: ' + str(e))
             break 
-    clnt.sc.close()
+    clint.sc.close()

@@ -1,5 +1,6 @@
 from costumExeptions import *
 
+
 def catch_exception_get_db(schema, error):
     """
     the function manage all the schemas to the firebase database that related to get data from the database
@@ -43,20 +44,3 @@ def get_free_ip(db):
         return ip[0], ip[1]['ip']
     else:
         raise get_ip_err()
-
-
-def delete_user(username, token, email):
-    """
-    the function verify the delete of the user from the database.
-    :param username: the username
-    :param token: the token of the user
-    :param email: the email of the user
-    :return: None
-    """
-    sure = input("to verify the delete of the account type the username <" + username + ">: ")
-    if sure == username:
-        del_user(token, email)
-    else:
-        print('i guess you not that sure...')
-
-
