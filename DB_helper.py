@@ -26,7 +26,7 @@ def catch_exception_put_db(schema, error):
         schema
     except:
         print(error)
-        raise update_table_err(str(error))
+        raise update_table_err('', str(error))
     return True
 
 
