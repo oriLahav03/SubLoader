@@ -19,12 +19,19 @@ authentication = firebase.auth()
 # storage = firebase.storage()
 
 # protocols:
-# singup -> 01email!name!password!conf password #01s\femail\err msg!ip\none
-# login ->  02name\email!password               #02s\f(username!ip)\err
-# delete user -> 03email!password
-# new room -> 10size(3bytes)#roomname#roomadmin#password(optional)#mustpassword
-# join room -> 11
-# leave room -> 12
+# singup -> 01email!name!password!conf password #01s\f!email\err msg!ip\none
+# login ->  02name\email!password               #02s\f!(username!ip)\err
+# delete user -> 03email!password               #03s\f
+
+# new room -> 10size(3bytes)#roomname#roomadmin#password(optional)#mustpassword(t\f)
+    #settings{new users : true\false, need password: true\false, manual accepts : true\false}
+# join room -> 11roomname#password(if needed)
+# leave room -> 12roomname (if he is the admin need to give it to other)
+# change room admin -> 13roomname#user
+# kick from room -> 14roomname#user
+# delete room -> 15roomname
+# change password -> 16roomname#newpassword
+# change settings -> 17size(3bytes)settings{new_users : true\false, need_pass: true\false, accept_manual : true\false}
 
 
 class Singup:
