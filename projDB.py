@@ -23,8 +23,8 @@ authentication = firebase.auth()
 # login ->  02name\email!password               #02s\f!(username!ip)\err
 # delete user -> 03email!password               #03s\f
 
-# new room -> 10size(3bytes)#roomname#roomadmin#password(optional)#mustpassword(t\f)
-    #settings{new users : true\false, need password: true\false, manual accepts : true\false}
+# new room -> 10size(3bytes)#roomname#roomadmin#password(optional)
+    #settings{new_users : true\false, need_pass: true\false, accept_manual : true\false}
 # join room -> 11roomname#password(if needed)
 # leave room -> 12roomname (if he is the admin need to give it to other)
 # change room admin -> 13roomname#user
@@ -64,7 +64,7 @@ class Google_DB:
     def singup(self, s_up: Singup):
         if s_up.password == s_up.conf_pw:
             try:
-                self.auth.create_user_with_email_and_password(s_up.email,
+                new_user_data = self.auth.create_user_with_email_and_password(s_up.email,
                                                               s_up.password)  # Sign up with email and password
                 print("User successfully created!")
             except Exception as e:
@@ -121,12 +121,20 @@ class Google_DB:
             catch_exception_put_db(self.db.child('IPS').child(ip[0]).child('used').set(False),
                                    "ERROR: can't change ip to not used")
             print("User successfully deleted!")
+    
+    def add_new_room(self, room):
+        """
+        Add new room to the DB 
+        """
+        if 0 != len(self.db.child("Networks").order_by_key().equal_to(room.name).get().pyres):
+            #TODO raise taken_room_name
+            pass
+        room_data = {"password" : room.password, "admin" : room.admin, "users" : [],
+            "settings" : {"new_users" : "true", "need_pass": room.need_password, "accept_manual" : "false"}}
+        catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
 
-
+        
 if __name__ == '__main__':
     # tester
-    free_ip_result = get_free_ip(database)
-    print(free_ip_result)
     gdb = Google_DB(database, authentication)
-    response = gdb.singup(Singup("ori@gmail.com", "ori", "ilay120", "ilay120"))
-    print(response)
+    gdb.add_new_room("try2")
