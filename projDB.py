@@ -53,8 +53,8 @@ class Google_DB:
         self.db = db
         self.auth = auth
 
-    def __get_userinfo_with_email(self, email):
-        stats = catch_exception_get_db(self.db.child('Users').order_by_child('email').equal_to(email).get().val(),
+    def __get_userinfo_by(self, child, eql):
+        stats = catch_exception_get_db(self.db.child('Users').order_by_child(child).equal_to(eql).get().val(),
                                        "ERROR: can't get the stats")
         if stats:
             return stats.popitem()
@@ -92,7 +92,7 @@ class Google_DB:
             print("ERROR: Wrong Email or Password input!")
             return False, str(e)
             # get user data section
-        stat = self.__get_userinfo_with_email(l_in.email)
+        stat = self.__get_userinfo_by('email', l_in.email)
         return True, (
             stat[0], stat[1]['ip'], token['idToken'])  # if the action succeed and the user info (name,ip,token)
 
@@ -111,7 +111,7 @@ class Google_DB:
             flag = False
 
         if flag is True:
-            stat = self.__get_userinfo_with_email(email)
+            stat = self.__get_userinfo_by('email' ,email)
             del_user_info = catch_exception_put_db(self.db.child('Users').child(stat[0]).set(None),
                                                    "ERROR: can't delete user")
             ips = catch_exception_get_db(
@@ -143,7 +143,7 @@ class Google_DB:
             "settings" : {"new_users" : "true", "need_pass": room.need_password, "accept_manual" : "false"}}
         catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
 
-    def join_room(self, room_name, password, new_user_ip):
+    def join_room(self, room_name, new_user_ip, password = ''):
         """
         join to a new room 
         """
