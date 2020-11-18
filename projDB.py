@@ -161,9 +161,23 @@ class Google_DB:
             #TODO raise room_not_exist
             pass
 
-        
+    def leave_room(self, room_name, user_ip):
+        """
+        removing aa user from a room
+        """
+        val = self.__is_room_exists(room_name)
+        if val:
+            user_list = val[room_name]['users']
+            if user_ip in user_list:
+                user_list.remove(user_ip)
+                is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
+                        {"users":user_list}), "can't remove user "+ user_ip + " from room " + room_name)
+        else:
+            #TODO raise room_not_exist
+            pass
+
 if __name__ == '__main__':
     # tester
     gdb = Google_DB(database, authentication)
-    gdb.join_room('try', '', "anony")
+    gdb.leave_room('try', "anony")
 
