@@ -122,19 +122,48 @@ class Google_DB:
                                    "ERROR: can't change ip to not used")
             print("User successfully deleted!")
     
+    def __is_room_exists(self, name):
+        """
+        checking if the room exists by name
+        if yes return it else return false
+        """
+        get = self.db.child("Networks").order_by_key().equal_to(name).get()
+        if 0 != len(get.pyres):
+            return get.val()
+        return False
+        
     def add_new_room(self, room):
         """
         Add new room to the DB 
         """
-        if 0 != len(self.db.child("Networks").order_by_key().equal_to(room.name).get().pyres):
+        if self.__is_room_exists(room.name):
             #TODO raise taken_room_name
             pass
         room_data = {"password" : room.password, "admin" : room.admin, "users" : [],
             "settings" : {"new_users" : "true", "need_pass": room.need_password, "accept_manual" : "false"}}
         catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
 
+    def join_room(self, room_name, password, new_user_ip):
+        """
+        join to a new room 
+        """
+        val = self.__is_room_exists(room_name)
+        if val:
+            if val[room_name]['users'] == password:#or in settings need_pass is false
+                user_list = val[room_name]['users']
+                user_list.append(new_user_ip)
+                is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
+                    {"users":user_list}), "can't add user "+ new_user_ip + " to room " + room_name)
+            else:
+                #TODO raise password_not_match
+                pass
+        else:
+            #TODO raise room_not_exist
+            pass
+
         
 if __name__ == '__main__':
     # tester
     gdb = Google_DB(database, authentication)
-    gdb.add_new_room("try2")
+    gdb.join_room('try', '', "anony")
+
