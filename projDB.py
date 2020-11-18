@@ -94,7 +94,7 @@ class Google_DB:
             # get user data section
         stat = self.__get_userinfo_by('email', l_in.email)
         return True, (
-            stat[0], stat[1]['ip'], token['idToken'])  # if the action succeed and the user info (name,ip,token)
+            stat[1]['username'], stat[1]['ip'], token['localId'])  # if the action succeed and the user info (name,ip,token)
 
     def del_user(self, token, email):
         """
@@ -154,6 +154,12 @@ class Google_DB:
                 user_list.append(new_user_ip)
                 is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                     {"users":user_list}), "can't add user "+ new_user_ip + " to room " + room_name)
+
+                user_if = self.__get_userinfo_by('ip', new_user_ip)
+                user_rooms = user_if[1]['rooms']
+                user_rooms.append(room_name)
+                is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
+                    {'rooms' : user_rooms}), "cant add room from list")
             else:
                 #TODO raise password_not_match
                 pass
@@ -161,9 +167,10 @@ class Google_DB:
             #TODO raise room_not_exist
             pass
 
-    def leave_room(self, room_name, user_ip):
+    def remove_from_room(self, room_name, user_ip):
         """
-        removing aa user from a room
+        removing a user from a room
+        and the room name from his list
         """
         val = self.__is_room_exists(room_name)
         if val:
@@ -172,6 +179,12 @@ class Google_DB:
                 user_list.remove(user_ip)
                 is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                         {"users":user_list}), "can't remove user "+ user_ip + " from room " + room_name)
+                        
+                user_if = self.__get_userinfo_by('ip', user_ip)
+                user_rooms = user_if[1]['rooms']
+                user_rooms.remove(room_name)
+                is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
+                    {'rooms' : user_rooms}), "cant remove room from list")
         else:
             #TODO raise room_not_exist
             pass
@@ -179,5 +192,6 @@ class Google_DB:
 if __name__ == '__main__':
     # tester
     gdb = Google_DB(database, authentication)
-    gdb.leave_room('try', "anony")
+    gdb.login(Login('ilay@gmail.com', 'ilay120'))
+    gdb.remove_from_room('try', "anony")
 
