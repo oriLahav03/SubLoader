@@ -129,6 +129,7 @@ class Google_DB:
         if yes return it else return false
         """
         get = self.db.child("Networks").order_by_key().equal_to(name).get()
+        #tget = self.db.child("Networks").child(name).get().val()['users'] after can give up on room_name var
         if 0 != len(get.pyres):
             return get.val()
         return False
@@ -141,7 +142,7 @@ class Google_DB:
             new_user_ip ([ip of user]): wo wants to join
             password (str): [password for room].
         """
-        if room_val['settings']['accept_new']:
+        if room_val['settings']['new_users']:
             if room_val['pass'] == password or not room_val['settings']['need_pass']:
                 return True
             else:
@@ -235,10 +236,22 @@ class Google_DB:
         if val:
             is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                     {'settings' : eval(sets)}), "can't update settings")
+    
+    def del_room(self, room_name):
+        val = self.__is_room_exists(room_name)
+        if val:
+            user_list = val[room_name]['users'] + [val[room_name]['admin']]
+            for usr_ip in user_list:
+                user_if = self.__get_userinfo_by('ip', usr_ip)
+                user_rooms = user_if[1]['rooms']
+                user_rooms.remove(room_name)
+                is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
+                    {'rooms' : user_rooms}), "cant remove room from list")
+            self.db.child("Networks").child(room_name).remove()
 
 if __name__ == '__main__':
     # tester
     gdb = Google_DB(database, authentication)
     #gdb.login(Login('ilay@gmail.com', 'ilay120'))
-    #gdb.remove_from_room('try', "anony")
-    gdb.change_sets('try', '''{'new_users' : True, 'need_pass': False, 'accept_manual' : True}''')
+    gdb.del_room('try')
+    #gdb.change_sets('try', '''{'new_users' : True, 'need_pass': False, 'accept_manual' : True}''')
