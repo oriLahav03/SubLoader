@@ -43,7 +43,6 @@ class Singup:
         self.email = email
         self.conf_pw = conf
 
-
 class Login:
     def __init__(self, email, pw):
         self.password = pw
@@ -230,10 +229,16 @@ class Google_DB:
         else:
             #TODO raise room_not_exist
             pass
-        
+
+    def change_sets(self, room_name, sets):
+        val = self.__is_room_exists(room_name)
+        if val:
+            is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
+                    {'settings' : eval(sets)}), "can't update settings")
+
 if __name__ == '__main__':
     # tester
     gdb = Google_DB(database, authentication)
-    gdb.login(Login('ilay@gmail.com', 'ilay120'))
-    gdb.remove_from_room('try', "anony")
-
+    #gdb.login(Login('ilay@gmail.com', 'ilay120'))
+    #gdb.remove_from_room('try', "anony")
+    gdb.change_sets('try', '''{'new_users' : True, 'need_pass': False, 'accept_manual' : True}''')
