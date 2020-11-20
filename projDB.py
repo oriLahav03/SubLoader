@@ -27,11 +27,13 @@ authentication = firebase.auth()
     #settings{new_users : true\false, need_pass: true\false, accept_manual : true\false}
 # join room -> 11roomname#password(if needed)
 # leave room -> 12roomname (if he is the admin need to give it to other)
-# change room admin -> 13roomname#user
-# kick from room -> 14roomname#user
-# delete room -> 15roomname
-# change password -> 16roomname#newpassword
-# change settings -> 17size(3bytes)settings{new_users : true\false, need_pass: true\false, accept_manual : true\false}
+#check if admin:
+    # change room admin -> 13roomname#user
+    # kick from room -> 14roomname#user
+    # delete room -> 15roomname
+    # change password -> 16roomname#newpassword
+    # change settings -> 17size(3bytes)settings
+    # {new_users : true\false, need_pass: true\false, accept_manual : true\false}
 
 
 class Singup:
@@ -131,6 +133,37 @@ class Google_DB:
         if 0 != len(get.pyres):
             return get.val()
         return False
+
+    def __can_join_new_room(self, room_val, new_user_ip, password):
+        """check if new user can join the room
+            pass match \ not accept new \ 
+        Args:
+            room_val ([room from db]): [description]
+            new_user_ip ([ip of user]): wo wants to join
+            password (str): [password for room].
+        """
+        if room_val['settings']['accept_new']:
+            if room_val['pass'] == password or not room_val['settings']['need_pass']:
+                return True
+            else:
+                #TODO raise password_not_match
+                pass
+        else:
+            return False
+
+    def is_room_admin(self, room_name, user_ip):
+        """
+        check if the user is the admin of the room
+        """
+        val = self.__is_room_exists(room_name)
+        if val:
+            if user_ip == val[room_name]['admin']:
+                return True
+            else:
+                return False
+        else:
+            #TODO raise room_not_exist
+            pass
         
     def add_new_room(self, room):
         """
@@ -149,7 +182,7 @@ class Google_DB:
         """
         val = self.__is_room_exists(room_name)
         if val:
-            if val[room_name]['users'] == password:#or in settings need_pass is false
+            if self.__can_join_new_room(val[room_name], new_user_ip, password):
                 user_list = val[room_name]['users']
                 user_list.append(new_user_ip)
                 is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
@@ -160,9 +193,6 @@ class Google_DB:
                 user_rooms.append(room_name)
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
                     {'rooms' : user_rooms}), "cant add room from list")
-            else:
-                #TODO raise password_not_match
-                pass
         else:
             #TODO raise room_not_exist
             pass
@@ -179,7 +209,7 @@ class Google_DB:
                 user_list.remove(user_ip)
                 is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                         {"users":user_list}), "can't remove user "+ user_ip + " from room " + room_name)
-                        
+
                 user_if = self.__get_userinfo_by('ip', user_ip)
                 user_rooms = user_if[1]['rooms']
                 user_rooms.remove(room_name)
@@ -188,7 +218,19 @@ class Google_DB:
         else:
             #TODO raise room_not_exist
             pass
-
+    
+    def change_room_pass(self, room_name, new_pass):
+        """
+        change password for room
+        """
+        val = self.__is_room_exists(room_name)
+        if val:
+            is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
+                    {"pass":new_pass}), "can't update password for room "+ room_name)
+        else:
+            #TODO raise room_not_exist
+            pass
+        
 if __name__ == '__main__':
     # tester
     gdb = Google_DB(database, authentication)
