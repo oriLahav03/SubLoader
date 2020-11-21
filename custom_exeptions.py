@@ -45,3 +45,21 @@ class name_taken(Exceptions):
 
     def __str__(self):
         return self.name + ' already exists in ' + self.zone
+
+class get_userinfo_err(Exceptions):
+    def __init__(self, zone, val):
+        super(get_userinfo_err, self).__init__()
+        self.z = zone
+        self.v = val
+    
+    def __str__(self):
+        return 'can\'t find user with value ' + self.v + ' in ' + self.z  
+
+class password_not_match(Exception):
+    def __init__(self, pw, room):
+        super(password_not_match, self).__init__()
+        self.pw = pw
+        self.room = room
+
+    def __str__(self):
+        return 'password ' + self.pw + ' not match to ' self.room = room
