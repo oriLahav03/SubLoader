@@ -193,6 +193,8 @@ class Google_DB:
                 user_rooms.append(room_name)
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
                     {'rooms' : user_rooms}), "cant add room from list")
+            else:
+                raise join_room_err(room_name)
         else:
             #TODO raise room_not_exist
             pass
