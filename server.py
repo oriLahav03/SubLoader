@@ -50,10 +50,10 @@ class Server:
         res = self.gdb.login(l_in)
         if res[0]:
             user_info = res[1][0] + '!' + res[1][1]
-            cln_sc.sendall(('01s' + user_info).encode())
+            cln_sc.sendall(('02s' + user_info).encode())
             return False
         else:
-            cln_sc.sendall(('01f' + res[1]).encode())
+            cln_sc.sendall(('02f' + res[1]).encode())
             return True
 
     def accept_clients(self):

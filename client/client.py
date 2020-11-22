@@ -43,39 +43,48 @@ class Client:
                 self.get_n_print()
             except:
                 break
+    
+    def __do_singup(self ):
+        email = input("enter email: ")
+        username = input("enter username: ")
+        pw = input("enter password: ")
+        con_pw = input("enter confirm password: ")
+        self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
+
+        ret_c = self.sc.recv(3).decode()
+        if ret_c[2] == 's':
+            ret_msg = self.sc.recv(128).decode().split('!')
+            print('successful new user \nwith email ' + ret_msg[0] + ' and ip ' + ret_msg[1])
+        else:
+            print('unsuccessful new user\n' + self.sc.recv(128).decode())
+            return True
+
+    def __do_login(self):
+        email = input("enter email: ")
+        username = input("enter password: ")
+        self.sc.sendall(str('01' + email + '!' + pw).encode())
+
+        ret_c = self.sc.recv(3).decode()
+        if ret_c[2] == 's':
+            print('login successful')
+            s = int(self.sc.recv(3).decode())
+            ret_msg = self.sc.recv(s).decode().split('!') 
+            print('username: ' + ret_msg[0] + ' ip: ' + ret_msg[1] +'\nrooms: ' + str(ret_msg[2]))
+        else:
+            print('login unsuccessful \nusername or password incorrect')
+            return True
 
     def make_auth(self):
         """
         docstring
         """
         while True:
-            c = int(input('Welcome: \n1-singup\n2-login'))
+            c = int(input('Welcome: \n1-singup\n2-login\n'))
             if c == 1:
-                email = input("enter email: ")
-                username = input("enter username: ")
-                pw = input("enter password: ")
-                con_pw = input("enter confirm password: ")
-                self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
-
-                ret_c = self.sc.recv(3).decode()
-                if ret_c[2] == 's':
-                    ret_msg = self.sc.recv(128).decode().split('!')
-                    print('successful new user \nwith email ' + ret_msg[0] + ' and ip ' + ret_msg[1])
-                else:
-                    print('unsuccessful new user\n' + self.sc.recv(128).decode())
+                if self.__do_singup():
                     continue
             elif c == 2:
-                email = input("enter email: ")
-                username = input("enter username: ")
-                self.sc.sendall(str('01' + email + '!' + pw).encode())
-
-                ret_c = self.sc.recv(3).decode()
-                if ret_c[2] == 's':
-                    print('login successful')
-                    ret_msg = self.sc.recv(128).decode().split('!') 
-                    print('username: ' + ret_msg[0] + ' ip: ' + str(ret_msg))
-                else:
-                    print('login unsuccessful \nusername or password incorrect')
+                if self.__do_login():
                     continue
             else:
                 print('not an option')

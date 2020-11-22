@@ -20,7 +20,7 @@ authentication = firebase.auth()
 
 # protocols:
 # singup -> 01email!name!password!conf password #01s\f!email\err msg!ip\none
-# login ->  02name\email!password               #02s\f!(username!ip)\err
+# login ->  02name\email!password               #02s\fsize(3bytes)(username!ip!rooms)\err
 # delete user -> 03email!password               #03s\f
 
 # new room -> 10size(3bytes)#roomname#roomadmin#password(optional)
