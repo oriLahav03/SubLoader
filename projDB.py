@@ -33,7 +33,7 @@ authentication = firebase.auth()
     # delete room -> 15roomname                 #15s\f need modify members
     # change password -> 16roomname#newpassword #16s\f
     # change settings -> 17size(3bytes)settings
-    # {new_users : true\false, need_pass: true\false, accept_manual : true\false}
+    # {'new_users' : true\false, 'need_pass': true\false, 'accept_manual' : true\false}
                                                 #17s\f
 
 
@@ -251,6 +251,16 @@ class Google_DB:
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
                     {'rooms' : user_rooms}), "cant remove room from list")
             self.db.child("Networks").child(room_name).remove()
+
+    def change_admin(self,name, ip)
+        val = self.__is_room_exists(room_name)
+        if val:
+            user_list = val[room_name]['users']
+            if ip in user_list:
+                user_list.remove(ip)
+                user_list.append(val[room_name][admin])
+            is_updated = catch_exception_put_db(self.db.child("Users").child(name).update(
+                    {'admin' : ip, 'users' : user_list}), "cant update admin")
 
 if __name__ == '__main__':
     # tester
