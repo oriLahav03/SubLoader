@@ -26,16 +26,17 @@ authentication = firebase.auth()
 # delete user -> 03email!password               #03s\f
 
 # new room -> 10size(3bytes)#roomname#roomadmin#password(optional)
-# settings{new_users : true\false, need_pass: true\false, accept_manual : true\false}
-# join room -> 11roomname#password(if needed)
-# leave room -> 12roomname (if he is the admin need to give it to other)
+    # need_pass: true\false                      #10s\f+err
+# join room -> 11roomname#password(if needed)   #11s\f#room data\err
+# leave room -> 12roomname (if he is the admin need to give it to other) #12s\f
 # check if admin:
-# change room admin -> 13roomname#user
-# kick from room -> 14roomname#user
-# delete room -> 15roomname
-# change password -> 16roomname#newpassword
-# change settings -> 17size(3bytes)settings
-# {new_users : true\false, need_pass: true\false, accept_manual : true\false}
+    # change room admin -> 13roomname#user      #13s\f
+    # kick from room -> 14roomname#user         #14s\f need modify members
+    # delete room -> 15roomname                 #15s\f need modify members
+    # change password -> 16roomname#newpassword #16s\f
+    # change settings -> 17size(3bytes)settings
+    # {new_users : true\false, need_pass: true\false, accept_manual : true\false}
+                                                #17s\f
 
 
 class Singup:
@@ -265,8 +266,20 @@ class Room:
 
 
 class Room_manager:
-    def __init__(self, db: Google_DB):
+    def __init__(self, db: Google_DB, client):
         self.db = db
+        self.client = client
+
+    def get_data_with_size(self, sc: socket.socket):
+        size = int(sc.recv(3).decode())
+        req_msg = sc.recv(size).decode()
+        data = req_msg.split('#')
+        return data
+
+    def get_data(self, sc: socket.socket):
+        req_msg = sc.recv(1024).decode()
+        data = req_msg.split('#')
+        return data
 
     def new_room(self, data: list):
         try:
@@ -275,13 +288,83 @@ class Room_manager:
         except name_taken as e:
             return 'f' + str(e)
 
+    def join_room(self, data: list):
+        try:
+            self.db.join_room(data[0], self.client.vir_ip, data[1])
+            return 's'
+        except join_room_err as e:
+            return 'f' + str(e)
+
+    def leave_room(self, data: list):
+        try:
+            self.db.remove_from_room(data[0], self.client.vir_ip)
+            return 's'
+        except room_not_exist as e:
+            return 'f' + str(e)
+
+    def change_admin_in_room(self, data: list):
+        try:
+            self.db.change_admin(data[0], data[1])
+            return 's'
+        except Exception as e:  # TODO: add exception
+            return 'f' + str(e)
+
+    def kick_from_room(self, data: list):
+        try:
+            self.db.remove_from_room(data[0], data[1])
+            return 's'
+        except room_not_exist as e:
+            return 'f' + str(e)
+
+    def delete_room(self, data: list):
+        try:
+            self.db.del_room(data[0])
+            return 's'
+        except room_not_exist as e:
+            return 'f' + str(e)
+
+    def change_password(self, data: list):
+        try:
+            self.db.change_room_pass(data[0], data[1])
+            return 's'
+        except room_not_exist as e:
+            return 'f' + str(e)
+
+    def change_settings(self, data: list):
+        try:
+            self.db.change_sets(data[0], data[1])
+            return 's'
+        except room_not_exist as e:
+            return 'f' + str(e)
+
     def handle_request(self, sc: socket.socket):
         code = sc.recv(2).decode()  # code
         if code == '10':
-            size = int(sc.recv(3).decode())
-            req_msg = sc.recv(size).decode()
-            data = req_msg.split('#')
+            data = self.get_data_with_size(sc)
             sc.send('10'.encode() + self.new_room(data).encode())
+        elif code == '11':
+            data = self.get_data(sc)
+            sc.send('11'.encode() + self.join_room(data).encode())
+        elif code != '17':
+            data = self.get_data(sc)
+            if self.db.is_room_admin(data[0], data[1]):
+                if code == '12':  # TODO: give the admin to another if admin leave
+                    sc.send('12'.encode() + self.leave_room(data).encode())
+                elif code == '13':
+                    sc.send('13'.encode() + self.change_admin_in_room(data).encode())
+                elif code == '14':
+                    sc.send('14'.encode() + self.kick_from_room(data).encode())
+                elif code == '15':
+                    sc.send('15'.encode() + self.delete_room(data).encode())
+                elif code == '16':
+                    sc.send('16'.encode() + self.change_password(data).encode())
+            else:
+                sc.send('You are not an admin'.encode())
+        elif code == '17':
+            data = self.get_data_with_size(sc)
+            sc.send('17'.encode() + self.change_settings(data).encode())
+        else:
+            sc.send('invalid code'.encode())
 
 
 if __name__ == '__main__':
