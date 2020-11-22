@@ -79,7 +79,7 @@ class Google_DB:
                 "ERROR: can't add new user")
             update_ip = catch_exception_put_db(self.db.child("IPS").child(ip_id).update({'used': True}),
                                                "ERROR: can't change parameter")
-            return True, ip
+            return True, ip, new_user_data["localId"]
         else:
             return False, "passwords not match!"
 

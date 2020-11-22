@@ -33,7 +33,7 @@ class Server:
         s_up = Singup(req[0], req[1], req[2], req[3])
         res = self.gdb.singup(s_up)
         if res[0]:
-            cln_sc.sendall(('01s' + s_up.email + res[1]).encode())
+            cln_sc.sendall(('01s' + s_up.email+ '!' + res[1]).encode())
             return False
         else:
             cln_sc.sendall(('01f' + res[1]).encode())
@@ -85,7 +85,7 @@ class Server:
                 out = self.handle_login(sc, req)
             else:
                 sc.send(b'00unknown code')
-        return req_msg[0]
+        return req[1]
 
     def send_to_all(self, from_cln, msg: str):
         """

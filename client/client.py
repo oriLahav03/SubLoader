@@ -45,16 +45,20 @@ class Client:
                 break
     
     def __do_singup(self ):
-        email = input("enter email: ")
-        username = input("enter username: ")
-        pw = input("enter password: ")
-        con_pw = input("enter confirm password: ")
+        email = 'g@gmail.com' #input("enter email: ")
+        username = 'ssd' #input("enter username: ")
+        pw = '123456' #input("enter password: ")
+        con_pw = '123456' #input("enter confirm password: ")
         self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
 
         ret_c = self.sc.recv(3).decode()
         if ret_c[2] == 's':
             ret_msg = self.sc.recv(128).decode().split('!')
             print('successful new user \nwith email ' + ret_msg[0] + ' and ip ' + ret_msg[1])
+
+            self.vir_ip = ret_msg[1]
+            self.networks = []
+            self.un = ret_msg[0]
         else:
             print('unsuccessful new user\n' + self.sc.recv(128).decode())
             return True
@@ -70,7 +74,7 @@ class Client:
             s = int(self.sc.recv(3).decode())
             ret_msg = self.sc.recv(s).decode().split('!') 
             print('username: ' + ret_msg[0] + ' ip: ' + ret_msg[1] +'\nrooms: ' + ret_msg[2])
-            
+
             self.vir_ip = ret_msg[1]
             self.networks = eval(ret_msg[2])
             self.un = ret_msg[0]
