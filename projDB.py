@@ -271,8 +271,9 @@ class Room_manager:
     def new_room(self, data: list):
         try:
             self.db.add_new_room(Room(data))
-        except:
-            
+            return 's'
+        except name_taken as e:
+            return 'f' + str(e)
 
     def handle_request(self, sc: socket.socket):
         code = sc.recv(2).decode()  # code
@@ -280,7 +281,7 @@ class Room_manager:
             size = int(sc.recv(3).decode())
             req_msg = sc.recv(size).decode()
             data = req_msg.split('#')
-            self.new_room(data)
+            sc.send('10'.encode() + self.new_room(data).encode())
 
 
 if __name__ == '__main__':
