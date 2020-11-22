@@ -45,10 +45,10 @@ class Client:
                 break
     
     def __do_singup(self ):
-        email = 'g@gmail.com' #input("enter email: ")
-        username = 'ssd' #input("enter username: ")
-        pw = '123456' #input("enter password: ")
-        con_pw = '123456' #input("enter confirm password: ")
+        email = input("enter email: ")
+        username = input("enter username: ")
+        pw = input("enter password: ")
+        con_pw = input("enter confirm password: ")
         self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
 
         ret_c = self.sc.recv(3).decode()
