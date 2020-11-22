@@ -61,15 +61,19 @@ class Client:
 
     def __do_login(self):
         email = input("enter email: ")
-        username = input("enter password: ")
-        self.sc.sendall(str('01' + email + '!' + pw).encode())
+        pw = input("enter password: ")
+        self.sc.sendall(str('02' + email + '!' + pw).encode())
 
         ret_c = self.sc.recv(3).decode()
         if ret_c[2] == 's':
             print('login successful')
             s = int(self.sc.recv(3).decode())
             ret_msg = self.sc.recv(s).decode().split('!') 
-            print('username: ' + ret_msg[0] + ' ip: ' + ret_msg[1] +'\nrooms: ' + str(ret_msg[2]))
+            print('username: ' + ret_msg[0] + ' ip: ' + ret_msg[1] +'\nrooms: ' + ret_msg[2])
+            
+            self.vir_ip = ret_msg[1]
+            self.networks = eval(ret_msg[2])
+            self.un = ret_msg[0]
         else:
             print('login unsuccessful \nusername or password incorrect')
             return True

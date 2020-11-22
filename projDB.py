@@ -88,14 +88,14 @@ class Google_DB:
         try:
             token = self.auth.sign_in_with_email_and_password(l_in.email,
                                                               l_in.password)  # Sign up with email and password
-            print("User successfully logged in!")
+            #print("User successfully logged in!")
         except Exception as e:
-            print("ERROR: Wrong Email or Password input!")
+            #print("ERROR: Wrong Email or Password input!")
             return False, str(e)
             # get user data section
         stat = self.__get_userinfo_by('email', l_in.email)
         return True, (
-            stat[1]['username'], stat[1]['ip'], token['localId'])  # if the action succeed and the user info (name,ip,token)
+            stat[1]['username'], stat[1]['ip'], stat[1]['networks'] ,token['localId'])  # if the action succeed and the user info (name,ip,token)
 
     def del_user(self, token, email):
         """

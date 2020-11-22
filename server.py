@@ -49,8 +49,8 @@ class Server:
         l_in = Login(req[0], req[1])
         res = self.gdb.login(l_in)
         if res[0]:
-            user_info = res[1][0] + '!' + res[1][1]
-            cln_sc.sendall(('02s' + user_info).encode())
+            user_info = res[1][0] + '!' + res[1][1] +'!'+ str(res[1][2])
+            cln_sc.sendall(('02s'+ str(len(user_info)).rjust(3,'0') + user_info).encode())
             return False
         else:
             cln_sc.sendall(('02f' + res[1]).encode())
