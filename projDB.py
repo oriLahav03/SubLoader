@@ -24,16 +24,17 @@ authentication = firebase.auth()
 # delete user -> 03email!password               #03s\f
 
 # new room -> 10size(3bytes)#roomname#roomadmin#password(optional)
-    #settings{new_users : true\false, need_pass: true\false, accept_manual : true\false}
-# join room -> 11roomname#password(if needed)
-# leave room -> 12roomname (if he is the admin need to give it to other)
+    #need_pass: true\false                      #10s\f+err
+# join room -> 11roomname#password(if needed)   #11s\f#room data\err
+# leave room -> 12roomname (if he is the admin need to give it to other) #12s\f
 #check if admin:
-    # change room admin -> 13roomname#user
-    # kick from room -> 14roomname#user
-    # delete room -> 15roomname
-    # change password -> 16roomname#newpassword
+    # change room admin -> 13roomname#user      #13s\f
+    # kick from room -> 14roomname#user         #14s\f need modify members
+    # delete room -> 15roomname                 #15s\f need modify members
+    # change password -> 16roomname#newpassword #16s\f
     # change settings -> 17size(3bytes)settings
-    # {new_users : true\false, need_pass: true\false, accept_manual : true\false}
+    # {'new_users' : true\false, 'need_pass': true\false, 'accept_manual' : true\false}
+                                                #17s\f
 
 
 class Singup:
@@ -134,7 +135,7 @@ class Google_DB:
             return get.val()
         return False
 
-    def __can_join_new_room(self, room_val, new_user_ip, password):
+    def __can_join_new_room(self, room_val, password):
         """check if new user can join the room
             pass match \ not accept new \ 
         Args:
@@ -250,6 +251,16 @@ class Google_DB:
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
                     {'rooms' : user_rooms}), "cant remove room from list")
             self.db.child("Networks").child(room_name).remove()
+
+    def change_admin(self,name, ip)
+        val = self.__is_room_exists(room_name)
+        if val:
+            user_list = val[room_name]['users']
+            if ip in user_list:
+                user_list.remove(ip)
+                user_list.append(val[room_name][admin])
+            is_updated = catch_exception_put_db(self.db.child("Users").child(name).update(
+                    {'admin' : ip, 'users' : user_list}), "cant update admin")
 
 if __name__ == '__main__':
     # tester
