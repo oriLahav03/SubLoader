@@ -79,3 +79,13 @@ class password_not_match(Exception):
 
     def __str__(self):
         return 'password ' + self.pw + ' not match to ' + self.room
+
+class get_data_err(Exception):
+    def __init__(self, of_what, name='', msg=''):
+        super(get_data_err, self).__init__()
+        self.what = of_what + name
+        self.err = msg
+
+    def __str__(self):
+        return 'error geting data of '+self.what + ': ' + self.err
+        
