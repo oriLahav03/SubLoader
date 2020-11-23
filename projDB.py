@@ -27,6 +27,7 @@ authentication = firebase.auth()
     #need_pass: true\false                      #10s\f+err
 # join room -> 11roomname#password(if needed)   #11s\f#room data\err
 # leave room -> 12roomname (if he is the admin need to give it to other) #12s\f
+# get rooms data -> 18roomname                  #18s\fsize(3bytes)[users ips]!setting if admin
 #check if admin:
     # change room admin -> 13roomname#user      #13s\f
     # kick from room -> 14roomname#user         #14s\f need modify members
@@ -239,6 +240,9 @@ class Google_DB:
         if val:
             is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                     {'settings' : eval(sets)}), "can't update settings")
+        else:
+            #TODO raise room_not_exist
+            pass
     
     def del_room(self, room_name):
         val = self.__is_room_exists(room_name)
@@ -251,6 +255,9 @@ class Google_DB:
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
                     {'rooms' : user_rooms}), "cant remove room from list")
             self.db.child("Networks").child(room_name).remove()
+        else:
+            #TODO raise room_not_exist
+            pass
 
     def change_admin(self,name, ip)
         val = self.__is_room_exists(room_name)
@@ -261,6 +268,31 @@ class Google_DB:
                 user_list.append(val[room_name][admin])
             is_updated = catch_exception_put_db(self.db.child("Users").child(name).update(
                     {'admin' : ip, 'users' : user_list}), "cant update admin")
+        else:
+            #TODO raise room_not_exist
+            pass
+
+    def get_room_data(self, room_name, vir_ip):
+        """
+         get the room data
+        Raises:
+            room_not_exist: [if room in this name not founde]
+
+        Returns:
+            [list]: [list of users in ]
+            [dict]: [the settings of the network, only give to admin]
+        """
+        val = self.__is_room_exists(room_name)
+        if val:
+            user_list = val[room_name]['users'] + [val[room_name][admin]]
+            sets = val[room_name]['users']
+            if vir_ip not in user_list:
+                # TODO raise get_data_err
+            return user_list, sets
+        else:
+        # TODO raise room_not_exist
+            pass
+            
 
 if __name__ == '__main__':
     # tester
