@@ -259,13 +259,13 @@ class Google_DB:
             #TODO raise room_not_exist
             pass
 
-    def change_admin(self,name, ip)
-        val = self.__is_room_exists(room_name)
+    def change_admin(self,name, ip):
+        val = self.__is_room_exists(name)
         if val:
-            user_list = val[room_name]['users']
+            user_list = val[name]['users']
             if ip in user_list:
                 user_list.remove(ip)
-                user_list.append(val[room_name][admin])
+                user_list.append(val[name]['admin'])
             is_updated = catch_exception_put_db(self.db.child("Users").child(name).update(
                     {'admin' : ip, 'users' : user_list}), "cant update admin")
         else:
@@ -284,10 +284,11 @@ class Google_DB:
         """
         val = self.__is_room_exists(room_name)
         if val:
-            user_list = val[room_name]['users'] + [val[room_name][admin]]
+            user_list = val[room_name]['users'] + [val[room_name]['admin']]
             sets = val[room_name]['users']
             if vir_ip not in user_list:
                 # TODO raise get_data_err
+                pass
             return user_list, sets
         else:
         # TODO raise room_not_exist
