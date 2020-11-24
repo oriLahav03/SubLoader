@@ -7,15 +7,16 @@ class Room():
         self.room_name = name
         self.users = users
         self.sets = sets
+        self.admin = users[-1]
 
 
 class Client():
     """
     manage client info
     """
-    def __init__(self, sc : socket.socket, addr, name, email, vir_ip, rooms: list[Room]):
+    def __init__(self, sc : socket.socket, addr, name, email, vir_ip, rooms: list):
         self.sc = sc
-        self. addr = addr
+        self.addr = addr
         self.rooms = rooms
         self.name = name
         self.email = email
