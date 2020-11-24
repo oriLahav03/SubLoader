@@ -50,6 +50,11 @@ class Client:
                 break
     
     def __get_rooms_data(self):
+        """get the rooms data from server
+
+        Raises:
+            get_data_err: [if fails geting data from some rooms]
+        """
         err_rooms = []
         self.networks_data = {}
         for room in self.networks:
@@ -67,10 +72,15 @@ class Client:
 
 
     def __do_singup(self ):
-        email = 'g@gmail.com' #input("enter email: ")
-        username = 'ssd' #input("enter username: ")
-        pw = '123456' #input("enter password: ")
-        con_pw = '123456' #input("enter confirm password: ")
+        """get data for new users
+
+        Returns:
+            [bool]: [true for unssucceful singup]
+        """
+        email = input("enter email: ")
+        username = input("enter username: ")
+        pw = input("enter password: ")
+        con_pw = input("enter confirm password: ")
         self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
 
         ret_c = self.sc.recv(3).decode()
@@ -86,6 +96,11 @@ class Client:
             return True
 
     def __do_login(self):
+        """get data to make login
+
+        Returns:
+            [bool]: [true for unssucceful login]
+        """
         email = input("enter email: ")
         pw = input("enter password: ")
         self.sc.sendall(str('02' + email + '!' + pw).encode())
@@ -105,8 +120,7 @@ class Client:
             return True
 
     def make_auth(self):
-        """
-        docstring
+        """try connect to the server and get the user data from it
         """
         while True:
             c = int(input('Welcome: \n1-singup\n2-login\n'))
@@ -116,6 +130,7 @@ class Client:
             elif c == 2:
                 if self.__do_login():
                     continue
+                self.__get_rooms_data()
             else:
                 print('not an option')
                 continue
