@@ -27,7 +27,7 @@ authentication = firebase.auth()
     #need_pass: true\false                      #10s\f+err
 # join room -> 11roomname#password(if needed)   #11s\f#room data\err
 # leave room -> 12roomname (if he is the admin need to give it to other) #12s\f
-# get rooms data -> 18roomname                  #18s\fsize(3bytes)[users ips]!setting if admin
+# get rooms data -> 18roomname                  #18s\fsize(3bytes)["users ips"]#setting if admin({as dict})
 #check if admin:
     # change room admin -> 13roomname#user      #13s\f
     # kick from room -> 14roomname#user         #14s\f need modify members
