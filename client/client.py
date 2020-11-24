@@ -1,5 +1,6 @@
 import socket
 from _thread import *
+from client.client_err import *
 
 host = '127.0.0.1'
 port = 10000
@@ -7,6 +8,10 @@ port = 10000
 
 class Client:
     def __init__(self):
+        self.vir_ip = ''
+        self.networks= []
+        self.un = ''
+
         self.sc = socket.socket()
         self.sc_lock = allocate_lock()
         print('try to connect..')
@@ -44,6 +49,23 @@ class Client:
             except:
                 break
     
+    def __get_rooms_data(self):
+        err_rooms = []
+        self.networks_data = {}
+        for room in self.networks:
+            self.sc.sendall(str('18' + room).decode())
+            res = self.sc.recv(3).encode()
+            if res[2] == 's':
+                s = int(self.sc.recv(3).encode())
+                data = self.sc.recv(s).encode().split('#')+['']
+                self.networks_data[room] = data[:2]
+            else:
+                err_rooms+=room
+        if len(err_rooms):
+            raise get_data_err('rooms', err_rooms)
+
+
+
     def __do_singup(self ):
         email = 'g@gmail.com' #input("enter email: ")
         username = 'ssd' #input("enter username: ")
