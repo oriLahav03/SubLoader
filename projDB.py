@@ -270,101 +270,118 @@ class Room_manager:
         self.db = db
         self.client = client
 
-    def get_data_with_size(self, sc: socket.socket):
+    def __get_data_with_size(self, sc: socket.socket):
         size = int(sc.recv(3).decode())
         req_msg = sc.recv(size).decode()
         data = req_msg.split('#')
         return data
 
-    def get_data(self, sc: socket.socket):
+    def __get_data(self, sc: socket.socket):
         req_msg = sc.recv(1024).decode()
         data = req_msg.split('#')
         return data
 
-    def new_room(self, data: list):
+    def __new_room(self, data: list):
         try:
             self.db.add_new_room(Room(data))
             return 's'
         except name_taken as e:
             return 'f' + str(e)
 
-    def join_room(self, data: list):
+    def __join_room(self, data: list):
         try:
             self.db.join_room(data[0], self.client.vir_ip, data[1])
             return 's'
         except join_room_err as e:
             return 'f' + str(e)
 
-    def leave_room(self, data: list):
+    def __leave_room(self, data: list):
         try:
             self.db.remove_from_room(data[0], self.client.vir_ip)
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
 
-    def change_admin_in_room(self, data: list):
+    def __change_admin_in_room(self, data: list):
         try:
             self.db.change_admin(data[0], data[1])
             return 's'
         except Exception as e:  # TODO: add exception
             return 'f' + str(e)
 
-    def kick_from_room(self, data: list):
+    def __kick_from_room(self, data: list):
         try:
             self.db.remove_from_room(data[0], data[1])
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
 
-    def delete_room(self, data: list):
+    def __delete_room(self, data: list):
         try:
             self.db.del_room(data[0])
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
 
-    def change_password(self, data: list):
+    def __change_password(self, data: list):
         try:
             self.db.change_room_pass(data[0], data[1])
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
 
-    def change_settings(self, data: list):
+    def __change_settings(self, data: list):
         try:
             self.db.change_sets(data[0], data[1])
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
 
+    def __give_room_data(self, data: list):
+        """
+        get room data from db and send
+        """
+        try:
+            users, sets = self.db.get_room_data(data[0], self.client.vir_ip)
+            msg = str(users)+ '#' +str(sets)
+            size = len(msg)
+            return 's'+ str(size).ljust(3,'0') + msg
+        except get_data_err as e:
+            return 'f'+str(e)
+        except room_not_exist as e:
+            return 'f' + str(e)
+
     def handle_request(self, sc: socket.socket):
         code = sc.recv(2).decode()  # code
         if code == '10':
-            data = self.get_data_with_size(sc)
-            sc.send('10'.encode() + self.new_room(data).encode())
+            data = self.__get_data_with_size(sc)
+            sc.send('10'.encode() + self.__new_room(data).encode())
         elif code == '11':
-            data = self.get_data(sc)
-            sc.send('11'.encode() + self.join_room(data).encode())
+            data = self.__get_data(sc)
+            sc.send('11'.encode() + self.__join_room(data).encode())
+        elif code == '18':
+            data = self.__get_data(sc)
+            sc.send('18'.encode() + self.__give_room_data(data).encode())
         elif code != '17':
-            data = self.get_data(sc)
-            if self.db.is_room_admin(data[0], data[1]):
+            data = self.__get_data(sc)
+            if self.db.is_room_admin(data[0], self.client.vir_ip):
                 if code == '12':  # TODO: give the admin to another if admin leave
-                    sc.send('12'.encode() + self.leave_room(data).encode())
+                    sc.send('12'.encode() + self.__leave_room(data).encode())
                 elif code == '13':
-                    sc.send('13'.encode() + self.change_admin_in_room(data).encode())
+                    sc.send('13'.encode() + self.__change_admin_in_room(data).encode())
                 elif code == '14':
-                    sc.send('14'.encode() + self.kick_from_room(data).encode())
+                    sc.send('14'.encode() + self.__kick_from_room(data).encode())
                 elif code == '15':
-                    sc.send('15'.encode() + self.delete_room(data).encode())
+                    sc.send('15'.encode() + self.__delete_room(data).encode())
                 elif code == '16':
-                    sc.send('16'.encode() + self.change_password(data).encode())
+                    sc.send('16'.encode() + self.__change_password(data).encode())
             else:
-                sc.send('You are not an admin'.encode())
+                sc.send('fYou are not an admin'.encode())
         elif code == '17':
-            data = self.get_data_with_size(sc)
-            sc.send('17'.encode() + self.change_settings(data).encode())
+            data = self.__get_data_with_size(sc)
+            sc.send('17'.encode() + self.__change_settings(data).encode())
         else:
-            sc.send('invalid code'.encode())
+            sc.send('finvalid code'.encode())
 
 
 if __name__ == '__main__':
