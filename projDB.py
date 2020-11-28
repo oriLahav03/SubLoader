@@ -285,7 +285,7 @@ class Google_DB:
         val = self.__is_room_exists(room_name)
         if val:
             user_list = val[room_name]['users'] + [val[room_name]['admin']]
-            sets = val[room_name]['users']
+            sets = val[room_name]['settings']
             if vir_ip not in user_list:
                 # TODO raise get_data_err
                 pass
