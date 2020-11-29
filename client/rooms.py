@@ -9,3 +9,11 @@ class Room_req():
 
         res = self.clnt.sc.rcev(512)
         return res[2:]
+
+    def join_new_room(self, room_name, paswrd=' '):
+        data = room_name + '#' + paswrd
+        req = '11'+data
+        self.clnt.sc.send(req.encode())
+
+        res = self.clnt.sc.rcev(512)
+        return res[2:]
