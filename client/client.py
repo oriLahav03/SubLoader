@@ -1,6 +1,7 @@
 import socket
 from _thread import *
-from client_err import *
+from client.client_err import *
+from client.rooms import *
 
 host = '127.0.0.1'
 port = 10000
