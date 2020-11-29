@@ -1,5 +1,6 @@
 import socket
 from _thread import *
+from client_err import *
 
 host = '127.0.0.1'
 port = 10000
@@ -7,6 +8,10 @@ port = 10000
 
 class Client:
     def __init__(self):
+        self.vir_ip = ''
+        self.networks= []
+        self.un = ''
+
         self.sc = socket.socket()
         self.sc_lock = allocate_lock()
         print('try to connect..')
@@ -44,7 +49,34 @@ class Client:
             except:
                 break
     
+    def __get_rooms_data(self):
+        """get the rooms data from server
+
+        Raises:
+            get_data_err: [if fails geting data from some rooms]
+        """
+        err_rooms = []
+        self.networks_data = {}
+        for room in self.networks:
+            self.sc.sendall(str('18' + room).decode())
+            res = self.sc.recv(3).encode()
+            if res[2] == 's':
+                s = int(self.sc.recv(3).encode())
+                data = self.sc.recv(s).encode().split('#')+['']
+                self.networks_data[room] = data[:2]
+            else:
+                err_rooms+=room
+        if len(err_rooms):
+            raise get_data_err('rooms', err_rooms)
+
+
+
     def __do_singup(self ):
+        """get data for new users
+
+        Returns:
+            [bool]: [true for unssucceful singup]
+        """
         email = input("enter email: ")
         username = input("enter username: ")
         pw = input("enter password: ")
@@ -64,6 +96,11 @@ class Client:
             return True
 
     def __do_login(self):
+        """get data to make login
+
+        Returns:
+            [bool]: [true for unssucceful login]
+        """
         email = input("enter email: ")
         pw = input("enter password: ")
         self.sc.sendall(str('02' + email + '!' + pw).encode())
@@ -83,8 +120,7 @@ class Client:
             return True
 
     def make_auth(self):
-        """
-        docstring
+        """try connect to the server and get the user data from it
         """
         while True:
             c = int(input('Welcome: \n1-singup\n2-login\n'))
@@ -94,6 +130,7 @@ class Client:
             elif c == 2:
                 if self.__do_login():
                     continue
+                self.__get_rooms_data()
             else:
                 print('not an option')
                 continue
