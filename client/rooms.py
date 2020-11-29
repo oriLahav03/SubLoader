@@ -17,3 +17,15 @@ class Room_req():
 
         res = self.clnt.sc.rcev(512)
         return res[2:]
+
+    def leave_room(self, room_name):
+        req = '12'+room_name
+        self.clnt.sc.send(req.encode())
+        res = self.clnt.sc.rcev(128)
+        return res[2:]
+
+    def get_room_data(self, room_name):
+        req = '18'+room_name
+        self.clnt.sc.send(req.encode())
+        res = self.clnt.sc.rcev(128)
+        return res[2:]
