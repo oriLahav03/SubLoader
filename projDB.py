@@ -64,8 +64,8 @@ class Google_DB:
                                        "ERROR: can't get the stats")
         if stats:
             return stats.popitem()
-        else:  # TODO need to raise exception or something but for now...
-            return False
+        else:  
+            raise get_userinfo_err(child, eql)
 
     def singup(self, s_up: Singup):
         if s_up.password == s_up.conf_pw:
@@ -97,7 +97,7 @@ class Google_DB:
         except Exception as e:
             #print("ERROR: Wrong Email or Password input!")
             return False, str(e)
-            # get user data section
+        # get user data section
         stat = self.__get_userinfo_by('email', l_in.email)
         return True, (
             stat[1]['username'], stat[1]['ip'], stat[1]['networks'] ,token['localId'])  # if the action succeed and the user info (name,ip,token)
@@ -151,8 +151,7 @@ class Google_DB:
             if room_val['pass'] == password or not room_val['settings']['need_pass']:
                 return True
             else:
-                # TODO raise password_not_match
-                pass
+                raise password_not_match(password, room_val)
         else:
             return False
 
@@ -167,16 +166,14 @@ class Google_DB:
             else:
                 return False
         else:
-            # TODO raise room_not_exist
-            pass
+            raise room_not_exist(room_name, 'can\'t find room ')
 
     def add_new_room(self, room):
         """
         Add new room to the DB 
         """
         if self.__is_room_exists(room.name):
-            # TODO raise taken_room_name
-            pass
+            raise name_taken(room.name, 'room')
         room_data = {"password": room.password, "admin": room.admin, "users": [],
                      "settings": {"new_users": "true", "need_pass": room.need_password, "accept_manual": "false"}}
         catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
@@ -201,8 +198,7 @@ class Google_DB:
             else:
                 raise join_room_err(room_name)
         else:
-            # TODO raise room_not_exist
-            pass
+            raise room_not_exist(room_name)
 
     def remove_from_room(self, room_name, user_ip):
         """
@@ -223,9 +219,8 @@ class Google_DB:
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
                     {'rooms': user_rooms}), "cant remove room from list")
         else:
-            # TODO raise room_not_exist
-            pass
-
+            raise room_not_exist(room_name)
+            
     def change_room_pass(self, room_name, new_pass):
         """
         change password for room
@@ -235,8 +230,7 @@ class Google_DB:
             is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                 {"pass": new_pass}), "can't update password for room " + room_name)
         else:
-            # TODO raise room_not_exist
-            pass
+            raise room_not_exist(room_name)
 
     def change_sets(self, room_name, sets):
         val = self.__is_room_exists(room_name)
@@ -244,8 +238,7 @@ class Google_DB:
             is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                     {'settings' : eval(sets)}), "can't update settings")
         else:
-            #TODO raise room_not_exist
-            pass
+            raise room_not_exist(room_name)
     
     def del_room(self, room_name):
         val = self.__is_room_exists(room_name)
@@ -259,8 +252,7 @@ class Google_DB:
                     {'rooms': user_rooms}), "cant remove room from list")
             self.db.child("Networks").child(room_name).remove()
         else:
-            #TODO raise room_not_exist
-            pass
+            raise room_not_exist(room_name)
 
     def change_admin(self,name, ip):
         val = self.__is_room_exists(name)
@@ -272,8 +264,7 @@ class Google_DB:
             is_updated = catch_exception_put_db(self.db.child("Users").child(name).update(
                     {'admin' : ip, 'users' : user_list}), "cant update admin")
         else:
-            #TODO raise room_not_exist
-            pass
+            raise room_not_exist(name)
 
     def get_room_data(self, room_name, vir_ip):
         """
@@ -290,12 +281,10 @@ class Google_DB:
             user_list = val[room_name]['users'] + [val[room_name]['admin']]
             sets = val[room_name]['users']
             if vir_ip not in user_list:
-                # TODO raise get_data_err
-                pass
+                raise get_data_err('room', room_name, 'can\'t find room')
             return user_list, sets
         else:
-        # TODO raise room_not_exist
-            pass
+            raise room_not_exist(room_name)
             
 
 
