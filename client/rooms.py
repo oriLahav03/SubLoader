@@ -29,3 +29,9 @@ class Room_req():
         self.clnt.sc.send(req.encode())
         res = self.clnt.sc.rcev(128)
         return res[2:]
+
+    def give_admin(self, room_name, user_ip):
+        req = '13'+room_name+'#'+user_ip
+        self.clnt.sc.send(req.encode())
+        res = self.clnt.sc.rcev(64)
+        return res[2:]
