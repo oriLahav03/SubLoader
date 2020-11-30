@@ -47,3 +47,9 @@ class Room_req():
         self.clnt.sc.send(req.encode())
         res = self.clnt.sc.rcev(64)
         return res[2:]
+
+    def change_paswrd(self, room_name, new_pas):
+        req = '16'+room_name+'#'+new_pas
+        self.clnt.sc.send(req.encode())
+        res = self.clnt.sc.rcev(64)
+        return res[2:]
