@@ -35,3 +35,9 @@ class Room_req():
         self.clnt.sc.send(req.encode())
         res = self.clnt.sc.rcev(64)
         return res[2:]
+
+    def kick_user(self, room_name, user_ip):
+        req = '14'+room_name+'#'+user_ip
+        self.clnt.sc.send(req.encode())
+        res = self.clnt.sc.rcev(64)
+        return res[2:]
