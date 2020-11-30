@@ -53,3 +53,10 @@ class Room_req():
         self.clnt.sc.send(req.encode())
         res = self.clnt.sc.rcev(64)
         return res[2:]
+
+    def change_sets(self, new_users, need_pass, manual_accept):
+        sets = str({'new_users' : new_users, 'need_pass': need_pass, 'accept_manual' : manual_accept})
+        req = '17'+len(sets)+sets
+        self.clnt.sc.send(req.encode())
+        res = self.clnt.sc.rcev(64)
+        return res[2:]
