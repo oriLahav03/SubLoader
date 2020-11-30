@@ -41,3 +41,9 @@ class Room_req():
         self.clnt.sc.send(req.encode())
         res = self.clnt.sc.rcev(64)
         return res[2:]
+
+    def del_room(self, room_name):
+        req = '15'+room_name
+        self.clnt.sc.send(req.encode())
+        res = self.clnt.sc.rcev(64)
+        return res[2:]
