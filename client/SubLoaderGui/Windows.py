@@ -21,7 +21,8 @@ def login_screen():
 class Ui_LoginForm(QtWidgets.QWidget):
     def setupUi(self, LoginForm):
         LoginForm.setObjectName("LoginForm")
-        LoginForm.resize(398, 200)
+        LoginForm.setFixedSize(400, 200)
+        LoginForm.setWindowIcon(QtGui.QIcon('SubLoader.jpeg'))
 
         # Title
         font = QtGui.QFont()
@@ -83,6 +84,7 @@ class Ui_LoginForm(QtWidgets.QWidget):
         self.login_button.clicked.connect(self.authenticate)
 
         self.back_to_singup.clicked.connect(self.signup_screen)
+        LoginForm.hide()
 
     def signup_screen(self):
         self.SignupForm = QtWidgets.QWidget()
@@ -129,7 +131,8 @@ class Ui_LoginForm(QtWidgets.QWidget):
 class Ui_SingupForm(object):
     def setupUi(self, SingupForm):
         SingupForm.setObjectName("SingupForm")
-        SingupForm.resize(477, 344)
+        SingupForm.setFixedSize(477, 350)
+        SingupForm.setWindowIcon(QtGui.QIcon('SubLoader.jpeg'))
         
         # Singup Label
         font = QtGui.QFont()

@@ -4,17 +4,7 @@ from PyQt5 import QtWidgets as qtw
 from PyQt5 import QtGui as qtg
 # from PyQt5 import QtCore as qtc
 
-from Windows import Ui_LoginForm, Ui_SingupForm
-
-
-class LoginWindow(Ui_LoginForm, Ui_SingupForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.setupUi(self)
-        self.setFixedSize(400, 200)
-        self.setWindowIcon(qtg.QIcon('SubLoader.jpeg'))
-
+from Windows import Ui_LoginForm
 
 if __name__ == '__main__':
     app = qtw.QApplication(sys.argv)
@@ -24,4 +14,5 @@ if __name__ == '__main__':
     LoginForm.show()
 
     sys.exit(app.exec_())
+
 
