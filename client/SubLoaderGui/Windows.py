@@ -19,7 +19,7 @@ def login_screen():
 
 
 class Ui_LoginForm(QtWidgets.QWidget):
-    def setupUi(self, LoginForm):
+    def setupUi(self, LoginForm, mng):
         LoginForm.setObjectName("LoginForm")
         LoginForm.setFixedSize(400, 200)
         LoginForm.setWindowIcon(QtGui.QIcon('SubLoader.jpeg'))
@@ -83,14 +83,7 @@ class Ui_LoginForm(QtWidgets.QWidget):
 
         self.login_button.clicked.connect(self.authenticate)
 
-        self.back_to_singup.clicked.connect(self.signup_screen)
-        LoginForm.hide()
-
-    def signup_screen(self):
-        self.SignupForm = QtWidgets.QWidget()
-        self.ui = Ui_SingupForm()
-        self.ui.setupUi(self.SignupForm)
-        self.SignupForm.show()
+        self.back_to_singup.clicked.connect(mng.switch_windows)
 
     def check_mail(self):
         if re.search(email_regex, self.email_text.text()):
@@ -129,7 +122,7 @@ class Ui_LoginForm(QtWidgets.QWidget):
 
 
 class Ui_SingupForm(object):
-    def setupUi(self, SingupForm):
+    def setupUi(self, SingupForm, mng):
         SingupForm.setObjectName("SingupForm")
         SingupForm.setFixedSize(477, 350)
         SingupForm.setWindowIcon(QtGui.QIcon('SubLoader.jpeg'))
@@ -213,17 +206,8 @@ class Ui_SingupForm(object):
         self.retranslateUi(SingupForm)
         QtCore.QMetaObject.connectSlotsByName(SingupForm)
 
-        self.back_to_login_button.clicked.connect(self.signup_screen)
+        self.back_to_login_button.clicked.connect(mng.switch_windows)
         # self.back_to_login_button.clicked.connect(self.hide_window)
-
-    # def hide_window(self, Signup):
-    #     Signup.hide()
-
-    def signup_screen(self):
-        self.LoginForm = QtWidgets.QWidget()
-        self.ui = Ui_LoginForm()
-        self.ui.setupUi(self.LoginForm)
-        self.LoginForm.show()
 
     def retranslateUi(self, SingupForm):
         _translate = QtCore.QCoreApplication.translate
