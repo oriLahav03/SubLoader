@@ -1,6 +1,7 @@
 import socket
 from _thread import *
-from client_err import *
+from client.client_err import *
+from client.rooms import *
 
 host = '127.0.0.1'
 port = 10000
@@ -58,11 +59,11 @@ class Client:
         err_rooms = []
         self.networks_data = {}
         for room in self.networks:
-            self.sc.sendall(str('18' + room).decode())
-            res = self.sc.recv(3).encode()
+            self.sc.sendall(str('18' + room).encode())
+            res = self.sc.recv(3).decode()
             if res[2] == 's':
-                s = int(self.sc.recv(3).encode())
-                data = self.sc.recv(s).encode().split('#')+['']
+                s = int(self.sc.recv(3).decode())
+                data = self.sc.recv(s).decode().split('#')+['']
                 self.networks_data[room] = data[:2]
             else:
                 err_rooms+=room
@@ -134,7 +135,7 @@ class Client:
             else:
                 print('not an option')
                 continue
-
+            self.room_req = Room_req()
             break
 
 
