@@ -2,8 +2,6 @@ from DB_helper import *
 import socket
 import pyrebase
 
-HOST = '127.0.0.1'
-PORT = 4000
 firebaseConfig = {'apiKey': "AIzaSyAsWlvXK-lblE2C9QWt8HNwKKCO6GsB26E",
                   'authDomain': "subloader-98331.firebaseapp.com",
                   'databaseURL': "https://subloader-98331.firebaseio.com",
