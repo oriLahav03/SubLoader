@@ -1,13 +1,13 @@
 import socket
 from _thread import *
-from client.client_err import *
-from client.rooms import *
+from client_err import *
+from rooms import *
 
 host = '127.0.0.1'
 port = 10000
 
 
-class Client:
+class Client_logic:
     def __init__(self):
         self.vir_ip = ''
         self.networks= []
@@ -72,16 +72,12 @@ class Client:
 
 
 
-    def __do_singup(self ):
+    def __do_singup(self, email = '', username = '', pw = '', con_pw = ''):
         """get data for new users
 
         Returns:
             [bool]: [true for unssucceful singup]
         """
-        email = input("enter email: ")
-        username = input("enter username: ")
-        pw = input("enter password: ")
-        con_pw = input("enter confirm password: ")
         self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
 
         ret_c = self.sc.recv(3).decode()
@@ -96,14 +92,12 @@ class Client:
             print('unsuccessful new user\n' + self.sc.recv(128).decode())
             return True
 
-    def __do_login(self):
+    def __do_login(self, email = '', pw = ''):
         """get data to make login
 
         Returns:
             [bool]: [true for unssucceful login]
         """
-        email = input("enter email: ")
-        pw = input("enter password: ")
         self.sc.sendall(str('02' + email + '!' + pw).encode())
 
         ret_c = self.sc.recv(3).decode()
@@ -140,7 +134,7 @@ class Client:
 
 
 if __name__ == "__main__":
-    clint = Client()
+    clint = Client_logic()
     clint.make_auth()
     start_new_thread(clint.get_msg_thread, tuple())
     while True:
