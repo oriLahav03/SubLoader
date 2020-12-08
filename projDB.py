@@ -97,8 +97,12 @@ class Google_DB:
             return False, str(eval(e.strerror)['error']['message'])
         # get user data section
         stat = self.__get_userinfo_by('email', l_in.email)
+        try:
+            nets = stat[1]['networks']
+        except KeyError as kerr:
+            nets = []
         return True, (
-            stat[1]['username'], stat[1]['ip'], stat[1]['networks'] ,token['localId'])  # if the action succeed and the user info (name,ip,token)
+            stat[1]['username'], stat[1]['ip'], nets ,token['localId'])  # if the action succeed and the user info (name,ip,token)
 
     def del_user(self, token, email):
         """

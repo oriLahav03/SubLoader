@@ -35,7 +35,7 @@ class Manager():
         except (email_err, pw_err) as e:
             qtw.QMessageBox.critical(self.auth_mng.wig, 'INPUT ERROR', str(e))
 
-    def next_win(self, win):
+    def next_win(self, win = None):
         print("*room window*")
      
     def start_gui(self):
