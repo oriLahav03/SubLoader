@@ -94,7 +94,7 @@ class Google_DB:
             #print("User successfully logged in!")
         except Exception as e:
             #print("ERROR: Wrong Email or Password input!")
-            return False, str(e)
+            return False, str(eval(e.strerror)['error']['message'])
         # get user data section
         stat = self.__get_userinfo_by('email', l_in.email)
         return True, (

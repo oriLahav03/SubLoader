@@ -14,11 +14,12 @@ class Client():
     """
     manage client info
     """
-    def __init__(self, sc : socket.socket, addr, name, email, vir_ip, rooms: list):
+    def __init__(self, sc : socket.socket, addr, name, email, vir_ip, rooms: list, tkn = ''):
         self.sc = sc
         self.addr = addr
         self.rooms = rooms
         self.name = name
         self.email = email
         self.vir_ip = vir_ip
+        self.tkn = tkn
         

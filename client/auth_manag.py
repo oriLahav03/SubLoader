@@ -1,10 +1,13 @@
 from Windows import *
 
 class Auth_mng():
-    def __init__(self):
+    def __init__(self, main_mng):
+          self.main_mng = main_mng
+
+    def set_ui(self, main_mng):
         self.wig = QtWidgets.QWidget()
         self.win = Ui_LoginForm()
-        self.win.setupUi(self.wig, self)
+        self.win.setupUi(self.wig, main_mng)
         self.wig.show()
         self.wintype = "login"
 
@@ -13,11 +16,11 @@ class Auth_mng():
         self.wig = QtWidgets.QWidget() #new
         if self.wintype == "login":
             self.win = Ui_SingupForm()
-            self.win.setupUi(self.wig, self)
+            self.win.setupUi(self.wig, self.main_mng)
             self.wig.show()
             self.wintype = "singup"
         else:
             self.win = Ui_LoginForm()
-            self.win.setupUi(self.wig, self)
+            self.win.setupUi(self.wig, self.main_mng)
             self.wig.show()
             self.wintype = "login"

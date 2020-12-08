@@ -2,10 +2,20 @@ import socket
 from _thread import *
 from client_err import *
 from rooms import *
+import re
 
 host = '127.0.0.1'
 port = 10000
 
+# Email must be in a some@some.com format
+email_regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+
+# Password must contain:
+# At list 1 Uppercase letter
+# At list 1 number
+# At list 6 chars
+password_regex = r'[A-Za-z0-9]{6,20}'
+username_regex = "\W"
 
 class Client_logic:
     def __init__(self):
@@ -50,6 +60,20 @@ class Client_logic:
             except:
                 break
     
+    def __check_mail(self, eml):
+        if not re.search(email_regex, eml):
+           raise email_err("need to be @ and text in both side with a . in end", eml)
+
+    def __check_password(self, pw):
+        if not re.fullmatch(password_regex, pw):
+            raise pw_err("at list 6 leter uper lower and numbers", pw)
+
+    def __check_un(self, un):
+        if re.findall(username_regex, un):
+            raise un_err("only numbers leters and '_' alowed", un)
+        if len(un) < 4 or len(un) > 18 :
+            raise un_err("username size between 4 to 18", un)
+
     def __get_rooms_data(self):
         """get the rooms data from server
 
@@ -72,12 +96,16 @@ class Client_logic:
 
 
 
-    def __do_singup(self, email = '', username = '', pw = '', con_pw = ''):
+    def do_singup(self, email = '', username = '', pw = '', con_pw = ''):
         """get data for new users
 
         Returns:
             [bool]: [true for unssucceful singup]
         """
+        #if rais nothing its good
+        self.__check_mail(email)
+        self.__check_password(pw)
+        self.__check_un(username)
         self.sc.sendall(str('01' + email + '!' + username + '!' + pw + '!' + con_pw).encode())
 
         ret_c = self.sc.recv(3).decode()
@@ -87,17 +115,21 @@ class Client_logic:
 
             self.vir_ip = ret_msg[1]
             self.networks = []
-            self.un = ret_msg[0]
+            self.un = username
+            self.mail = ret_msg[0]
         else:
             print('unsuccessful new user\n' + self.sc.recv(128).decode())
             return True
 
-    def __do_login(self, email = '', pw = ''):
+    def do_login(self, email = '', pw = ''):
         """get data to make login
 
         Returns:
             [bool]: [true for unssucceful login]
         """
+        #if rais nothing its good
+        self.__check_mail(email)
+        self.__check_password(pw)
         self.sc.sendall(str('02' + email + '!' + pw).encode())
 
         ret_c = self.sc.recv(3).decode()
@@ -111,7 +143,7 @@ class Client_logic:
             self.networks = eval(ret_msg[2])
             self.un = ret_msg[0]
         else:
-            print('login unsuccessful \nusername or password incorrect')
+            print(self.sc.recv(128).decode())
             return True
 
     def make_auth(self):

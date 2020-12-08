@@ -1,15 +1,4 @@
-import re
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-# Email must be in a some@some.com format
-email_regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-
-# Password must contain:
-# At list 1 Uppercase letter
-# At list 1 number
-# At list 6 chars
-password_regex = r'[A-Za-z0-9]{6,}'
-
 
 def login_screen():
     LoginForm = QtWidgets.QWidget()
@@ -80,22 +69,13 @@ class Ui_LoginForm(QtWidgets.QWidget):
 
         self.retranslateUi(LoginForm)
         QtCore.QMetaObject.connectSlotsByName(LoginForm)
-
-        self.login_button.clicked.connect(self.authenticate)
-
-        self.back_to_singup.clicked.connect(mng.switch_windows)
-
-    def check_mail(self):
-        if re.search(email_regex, self.email_text.text()):
-            return True
-        else:
-            return False
-
-    def check_password(self):
-        if re.fullmatch(password_regex, self.password_text.text()):
-            return True
-        else:
-            return False
+        self.conn(mng)
+        
+    def conn(self, mng):
+        self.login_button.clicked.connect(mng.make_login)
+        self.back_to_singup.clicked.connect(mng.auth_mng.switch_windows)
+    def get_labels(self):
+        return [self.email_text.text() ,self.password_text.text()]
 
     def authenticate(self):
         # email = self.email_text.text()
@@ -205,9 +185,15 @@ class Ui_SingupForm(object):
 
         self.retranslateUi(SingupForm)
         QtCore.QMetaObject.connectSlotsByName(SingupForm)
+        self.conn(mng)
 
-        self.back_to_login_button.clicked.connect(mng.switch_windows)
-        # self.back_to_login_button.clicked.connect(self.hide_window)
+    def conn(self, mng):
+        self.back_to_login_button.clicked.connect(mng.auth_mng.switch_windows)
+        self.create_account_button.clicked.connect(mng.make_singup)
+
+    def get_labels(self):
+        return [self.email_text.text(), self.username_text.text(), 
+        self.password_text.text(), self.confirm_password_text.text()]
 
     def retranslateUi(self, SingupForm):
         _translate = QtCore.QCoreApplication.translate
