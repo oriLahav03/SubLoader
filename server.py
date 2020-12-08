@@ -111,7 +111,8 @@ class Server:
         try:
             name = self.new_auth(sc)
             is_connected = True
-        except:
+        except Exception as e:
+            print(str(e))
             is_connected = False
 
         if is_connected:

@@ -5,7 +5,7 @@ class Room():
     """
     def __init__(self, name, users, sets : dict):
         self.room_name = name
-        self.users = users
+        self.users = users[:-1]
         self.sets = sets
         self.admin = users[-1]
 

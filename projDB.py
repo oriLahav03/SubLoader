@@ -77,8 +77,8 @@ class Google_DB:
 
             ip_id, ip = get_free_ip(self.db)
             user_info = catch_exception_put_db(
-                self.db.child("Users").child(s_up.email.split('@')[0]).set({'username': s_up.username, 'ip': ip,
-                                                                            'email': s_up.email}),
+                self.db.child("Users").child(s_up.username).set({'username': s_up.username, 'ip': ip,
+                                                                            'email': s_up.email,'networks': []}),
                 "ERROR: can't add new user")
             update_ip = catch_exception_put_db(self.db.child("IPS").child(ip_id).update({'used': True}),
                                                "ERROR: can't change parameter")
@@ -189,10 +189,10 @@ class Google_DB:
                     {"users": user_list}), "can't add user " + new_user_ip + " to room " + room_name)
 
                 user_if = self.__get_userinfo_by('ip', new_user_ip)
-                user_rooms = user_if[1]['rooms']
+                user_rooms = user_if[1]['networks']
                 user_rooms.append(room_name)
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
-                    {'rooms': user_rooms}), "cant add room from list")
+                    {'networks': user_rooms}), "cant add room from list")
             else:
                 raise join_room_err(room_name)
         else:
