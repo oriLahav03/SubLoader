@@ -1,4 +1,5 @@
 from scapy.all import *
+from threading import *
 import socket
 
 statuses = {
@@ -17,16 +18,22 @@ class Proxy():
         self.cln_dt = data
         self.thrd_conn = []
         print("start:")
-        sniff(lfilter=self.routing, prn=self.prnt)
+        sniff(lfilter=self.out_routing, prn=self.prnt)
         print("end!")
 
-    def routing(self, p):
+    def out_routing(self, p):
         global my_vir_ip
         global ips
         if IP in p:
-            return p[IP].dst in ips or p[IP].dst == my_vir_ip
+            return p[IP].dst in ips  
         else:
             return False
+
+    def in_routing(self, p):
+        global my_vir_ip
+        global ips
+        if IP in p:
+            p[IP].dst == my_vir_ip
 
     def port_taken(self, port):
         for c in self.thrd_conn:
@@ -39,24 +46,26 @@ class Proxy():
         print("send to => " + p[IP].dst)
         if not self.port_taken(p[TCP].dport):
             self.thrd_conn.append(ThirdPartyConnection(("0.0.0.0", p[TCP].dport)))#(p[IP].src, p[TCP].sport)
+            self.thrd_conn[-1].setName("ip="+p[IP].dst+"|port="+p[TCP].dport)
+            self.thrd_conn[-1].start()
 
 
 
 
-class ThirdPartyConnection():
+class ThirdPartyConnection(Thread):
     """
     new socket with the server
     and one with the third party applicatin
     make communication between them
     """
     def __init__(self, app_conn):
+        super(ThirdPartyConnection, self).__init__()
         self.app_sock_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.my_addr = app_conn
         self.app_sock_s.bind(app_conn)
         self.app_sock_s.listen()
         self.status = statuses[0]
-        self.accespt_app()
 
     def accespt_app(self):
         try:
@@ -72,6 +81,9 @@ class ThirdPartyConnection():
     def connect_to_server(self):
         self.serv_sock.connect(server_conn)
 
+    def run(self):
+        self.accespt_app()
+        print("my new sock with app-> " + self.app_sock_c)
 
 if __name__ == '__main__':
     prx = Proxy(" ")
