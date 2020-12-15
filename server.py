@@ -1,6 +1,7 @@
 import socket
 from _thread import *
 from projDB import *
+from vpn_manager import *
 
 host = '127.0.0.1'
 port = 10000
@@ -11,7 +12,7 @@ class Server:
         self.sock_lock = allocate_lock()
         self.client_lock = allocate_lock()
         self.Thread_count = 0
-        self.clients_list = []
+        self.clients_list = {}
         self.gdb = db  # db
         self.ServerSocket = socket.socket()  # main socket
         try:
@@ -34,10 +35,10 @@ class Server:
         res = self.gdb.singup(s_up)
         if res[0]:
             cln_sc.sendall(('01s' + s_up.email+ '!' + res[1]).encode())
-            return False
+            return False,(s_up.email,s_up.username,res[1],[], res[2])
         else:
             cln_sc.sendall(('01f' + res[1]).encode())
-            return True
+            return True,0
 
     def handle_login(self, cln_sc, req: list):
         """
@@ -51,21 +52,10 @@ class Server:
         if res[0]:
             user_info = res[1][0] + '!' + res[1][1] +'!'+ str(res[1][2])
             cln_sc.sendall(('02s'+ str(len(user_info)).rjust(3,'0') + user_info).encode())
-            return False
+            return False,(l_in.email, res[1][0], res[1][1], res[1][2],res[1][0])
         else:
             cln_sc.sendall(('02f' + res[1]).encode())
-            return True
-
-    def accept_clients(self):
-        """
-        accept clients.
-        :return: None.
-        """
-        while True:
-            Client, address = self.ServerSocket.accept()
-            print('Connected to: ' + address[0] + ':' + str(address[1]))
-            start_new_thread(self.threaded_client, (Client, address))
-            print('Thread Number: ' + str(self.Thread_count))
+            return True,0
 
     def new_auth(self, sc: socket.socket):
         """
@@ -74,8 +64,8 @@ class Server:
         :return: user info.
         """
         req_msg = 0
-        out = True
-        while out:
+        out = [True,0]
+        while out[0]:
             code = sc.recv(2).decode()
             req_msg = sc.recv(256).decode()
             req = req_msg.split('!')
@@ -86,6 +76,24 @@ class Server:
             else:
                 sc.send(b'00unknown code')
         return req[1]
+
+    def accept_clients(self):
+        """
+        accept clients.
+        :return: None.
+        """
+        while True:
+            Client, address = self.ServerSocket.accept()
+            print('Connected to: ' + address[0] + ':' + str(address[1]))
+            con_type = Client.recv(1).decode()
+            if con_type == 'a':              #a for our app connection p to a proxy connection
+                start_new_thread(self.threaded_client, (Client, address))
+            elif con_type == 'p':
+                start_new_thread(self.proxy.new_con, (Client, address))
+            else:
+                Client.sendall(b'00not chose type of connection')
+                Client.close()
+            print('Thread Number: ' + str(self.Thread_count))
 
     def send_to_all(self, from_cln, msg: str):
         """
@@ -107,9 +115,8 @@ class Server:
         :param address: the client address.
         :return: None.
         """
-        name = ''
         try:
-            name = self.new_auth(sc)
+            usr_data = self.new_auth(sc)
             is_connected = True
         except Exception as e:
             print(str(e))
@@ -117,7 +124,7 @@ class Server:
 
         if is_connected:
             self.client_lock.acquire()
-            self.clients_list.append((sc, address, name))
+            self.clients_list[(sc, address)] = Client(sc, address, usr_data[1], usr_data[0],usr_data[2],usr_data[3], usr_data[4])
             self.Thread_count += 1
             self.client_lock.release()
 
@@ -136,7 +143,7 @@ class Server:
             self.send_to_all(address, name + ' logout')
             self.client_lock.acquire()
             self.Thread_count -= 1
-            self.clients_list.remove((sc, address, name))
+            del self.clients_list[(sc, address)] # remove client
             self.client_lock.release()
             sc.close()
 
