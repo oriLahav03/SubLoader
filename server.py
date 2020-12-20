@@ -1,7 +1,6 @@
-import socket
 from _thread import *
 from projDB import *
-from vpn_manager import *
+from proxy import *
 
 host = '127.0.0.1'
 port = 10000
@@ -64,7 +63,7 @@ class Server:
         :return: user info.
         """
         req_msg = 0
-        out = [True,0]
+        out = (True,)
         while out[0]:
             code = sc.recv(2).decode()
             req_msg = sc.recv(256).decode()
@@ -133,14 +132,14 @@ class Server:
                     data = sc.recv(512).decode()
                     if not data or data == 'q':
                         break
-                    msg = "->" + name + ': ' + data
+                    msg = "->" + usr_data[1] + ': ' + data
                     self.client_lock.acquire()
                     self.send_to_all(address, msg)
                     self.client_lock.release()
                 except:
                     break
-            print('client: "' + name + '" disconnected')
-            self.send_to_all(address, name + ' logout')
+            print('client: "' + usr_data[1] + '" disconnected')
+            self.send_to_all(address, usr_data[1] + ' logout')
             self.client_lock.acquire()
             self.Thread_count -= 1
             del self.clients_list[(sc, address)] # remove client

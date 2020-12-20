@@ -290,7 +290,7 @@ class Google_DB:
             
 
 
-class Room:
+class NewRoom:
     def __init__(self, data: list):
         self.name = data[0]
         self.admin = data[1]
@@ -316,7 +316,7 @@ class Room_manager:
 
     def __new_room(self, data: list):
         try:
-            self.db.add_new_room(Room(data))
+            self.db.add_new_room(NewRoom(data))
             return 's'
         except name_taken as e:
             return 'f' + str(e)
