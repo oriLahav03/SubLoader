@@ -13,6 +13,7 @@ class Server:
         self.Thread_count = 0
         self.clients_list = {}
         self.gdb = db  # db
+        self.proxy = Proxy(self.clients_list, self.client_lock)
         self.ServerSocket = socket.socket()  # main socket
         try:
             self.ServerSocket.bind((host, port))
