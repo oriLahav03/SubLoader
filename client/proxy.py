@@ -1,5 +1,5 @@
 from scapy.all import *
-from threading import *
+from threading import Thread
 import socket
 
 statuses = {
@@ -18,7 +18,7 @@ class Proxy():
         self.cln_dt = data
         self.thrd_conn = []
         print("start:")
-        sniff(lfilter=self.out_routing, prn=self.prnt)
+        sniff(lfilter=self.out_routing, prn=self.new_con_o)
         print("end!")
 
     def out_routing(self, p):
@@ -33,15 +33,15 @@ class Proxy():
         global my_vir_ip
         global ips
         if IP in p:
-            p[IP].dst == my_vir_ip
+            return p[IP].dst == my_vir_ip or p[TCP].sport == 10000
 
     def port_taken(self, port):
         for c in self.thrd_conn:
-            if port == c.my_addr[1]:
+            if port == c.srv_addr[1]:
                 return True
         return False
 
-    def prnt(self, p):
+    def new_con_o(self, p):
         print(p.show())
         print("send to => " + p[IP].dst)
         if not self.port_taken(p[TCP].dport):
@@ -50,10 +50,23 @@ class Proxy():
             pkt[TCP].ack = p[TCP].seq+1
             print(pkt.show())
             sr(pkt)
-            self.thrd_conn.append(ThirdPartyConnection(('', p[TCP].dport), (p[IP].src, p[TCP].sport)))
-            self.thrd_conn[-1].setName("ip="+p[IP].dst+"|port="+str(p[TCP].dport))
-            self.thrd_conn[-1].start()
+            new_app = ThirdPartyConnection(('', p[TCP].dport), (p[IP].src, p[TCP].sport))
+            new_app.setName("ip="+p[IP].dst+"|port="+str(p[TCP].dport))
+            new_app.accespt_app()
+            new_app.start()
+            self.thrd_conn.append(new_app)
 
+    def new_con_i(self, p):
+        """
+        docstring
+        """
+        raw = p[Raw].load.decode()
+        if raw[:2]=='60':
+            key = raw[2:]
+            new_app = ThirdPartyConnection((p[IP].dst, p[TCP].dport), (p[IP].src, p[TCP].sport))
+            new_app.connect_app()
+            new_app.start()
+            self.thrd_conn.append(new_app)
 
 
 
@@ -67,16 +80,16 @@ class ThirdPartyConnection(Thread):
         super(ThirdPartyConnection, self).__init__()
         self.app_sock_s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.my_addr = to_conn
+        self.srv_addr = to_conn
         self.app_addr = from_conn
         self.app_sock_s.bind(to_conn)
-        self.app_sock_s.listen(2)
+        self.app_sock_s.listen(1)
         self.status = statuses[0]
 
     def accespt_app(self):
         try:
             #self.app_sock_c, self.app_addr = self.app_sock_s.accept()
-            pkt = Ether()/IP(src=self.my_addr[0] ,dst=self.app_addr[0])/TCP(flags="SA")
+            pkt = Ether()/IP(src=self.srv_addr[0] ,dst=self.app_addr[0])/TCP(flags="SA")
             print("connect to app")
             self.status = statuses[1]
             self.connect_to_server()
@@ -87,10 +100,16 @@ class ThirdPartyConnection(Thread):
 
 
     def connect_to_server(self):
+        target_addr = self.srv_addr[0]+','+str(self.srv_addr[1])
         self.serv_sock.connect(server_conn)
+        self.serv_sock.sendall(b'p')
+        msg = '41'+str(len(target_addr)).rjust(2,'0')+target_addr
+        self.serv_sock.sendall(msg.encode())
+
+    def connect_app(self, key):
+        pass
 
     def run(self):
-        self.accespt_app()
         print("my new sock with app-> " + self.app_sock_c)
 
 if __name__ == '__main__':
