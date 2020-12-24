@@ -70,7 +70,7 @@ class Proxy():
             self.add_to_rout(sock, addr)
 
 
-    def con_to_client(self, from_sock,k):
+    def con_to_client(self, from_sock,key):
         """
         docstring
         """
@@ -79,7 +79,7 @@ class Proxy():
             if v.vir_ip == to_cln_addr[0]:
                 target = v
                 break
-        target.sc.sendall(b'60'+k.encode())
+        target.sc.sendall(b'60'+key.encode())
         return target, to_cln_addr
         
     def add_to_rout(self, to_sock, to_ad):
