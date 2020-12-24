@@ -5,12 +5,12 @@ from threading import *
 
 
 # protocols: first the server get 'p' msg then pass the connection to the proxy
-#41size(2bytes)ip,port <= this addr belong to the target client 
+#41size(2bytes)ip,port <= this addr belong to the target client -> server app
 #                     fully new connect- need to open socket in other client
 #42key(3byte) there is exeists Rout need to join it with the key
 #get to_client addres 50size(2bytes)ip,port (comes after 41\2)
 #
-#tell client to make new app handling socket with server 60key(3byte)
+#tell client to make new app handling socket with server 60key(3byte)((2bytes)ip,port)=>maybe it works
 
 class Rout(Thread):
     def __init__(self, from_sk, from_ad, to_clnt, client_list):
@@ -62,7 +62,7 @@ class Proxy():
             key = 0
             while self.__check_key(int(key)):
                 key = str(random.randint(1,999)).rjust(3,'0')
-            target_clnt = self.con_to_client(sock, key)
+            target_clnt, target_addr = self.con_to_client(sock, key)
             new_rout = Rout(sock, addr, target_clnt, self.cln_l)
             new_rout.set_key(int(key))
             self.rout_l.append(new_rout)
@@ -74,14 +74,13 @@ class Proxy():
         """
         docstring
         """
-        #cod = from_sock.recv(2).encode()
         to_cln_addr = from_sock.recv(int(from_sock.recv(2).encode())).encode().split(',')
         for k,v in self.cln_l:
             if v.vir_ip == to_cln_addr[0]:
                 target = v
                 break
         target.sc.sendall(b'60'+k.encode())
-        return target
+        return target, to_cln_addr
         
     def add_to_rout(self, to_sock, to_ad):
         """
