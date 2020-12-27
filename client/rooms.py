@@ -1,6 +1,6 @@
 class Room_req():
-    def __init__(self):
-        pass
+    def __init__(self, c):
+        self.clnt = c
 
     def new_room(self, name, paswrd, need_pass, vir_ip):
         room_data = '#'.join([name,vir_ip,paswrd,str(need_pass)])
