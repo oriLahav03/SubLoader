@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from room import Ui_room
+from room_gui import Ui_room
 
 
 class Ui_MainWindow(object):
