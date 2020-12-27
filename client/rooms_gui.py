@@ -67,7 +67,8 @@ class Ui_MainWindow(object):
         self.menu_bar.addAction(self.menu_info.menuAction())
 
         # Adding the Widgets of the rooms
-        for room_name, members in rooms.items():
+        rooms_build = self.__build_rooms_data(rooms)
+        for room_name, members in rooms_build.items():
             room = Ui_room()
             _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
                      Ui_room.setWindowTitle(room, "room")}
@@ -93,6 +94,11 @@ class Ui_MainWindow(object):
         mainWindow.setWindowTitle(_translate("MainWindow", "SubLoader"))
         self.IP_label.setText(_translate("MainWindow", "user,ip: " + user_ip))
 
+    def __build_rooms_data(self, rooms_data):
+        temp_data = {}
+        for n,dt in rooms_data:
+            temp_data[n] = dt[0]
+        return temp_data
 
 if __name__ == "__main__":
     import sys

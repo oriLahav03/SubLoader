@@ -20,7 +20,8 @@ username_regex = "\W"
 class Client_logic:
     def __init__(self):
         self.vir_ip = ''
-        self.networks= []
+        self.my_networks= []
+        self.networks_data = {}
         self.un = ''
 
         self.sc = socket.socket()
@@ -81,8 +82,8 @@ class Client_logic:
             get_data_err: [if fails geting data from some rooms]
         """
         err_rooms = []
-        self.networks_data = {}
-        for room in self.networks:
+        
+        for room in self.my_networks:
             self.sc.sendall(str('18' + room).encode())
             res = self.sc.recv(3).decode()
             if res[2] == 's':
@@ -114,7 +115,6 @@ class Client_logic:
             print('successful new user \nwith email ' + ret_msg[0] + ' and ip ' + ret_msg[1])
 
             self.vir_ip = ret_msg[1]
-            self.networks = []
             self.un = username
             self.mail = ret_msg[0]
         else:
@@ -140,7 +140,7 @@ class Client_logic:
             print('username: ' + ret_msg[0] + ' ip: ' + ret_msg[1] +'\nrooms: ' + ret_msg[2])
 
             self.vir_ip = ret_msg[1]
-            self.networks = eval(ret_msg[2])
+            self.my_networks = eval(ret_msg[2])
             self.un = ret_msg[0]
         else:
             print(self.sc.recv(128).decode())

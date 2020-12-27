@@ -22,7 +22,7 @@ class Manager():
                 qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail', str(res))
             else:
                 my_dit = self.logic.un +" - "+self.logic.vir_ip
-                win_g = Ui_MainWindow(qtw.QMainWindow(), self.logic.networks, my_dit)
+                win_g = Ui_MainWindow(qtw.QMainWindow(), self.logic.networks_data, my_dit)
                 self.auth_mng.wig.hide()
                 self.next_win(win_g)
         except (email_err, pw_err, un_err) as e:

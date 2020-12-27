@@ -281,7 +281,7 @@ class Google_DB:
         val = self.__is_room_exists(room_name)
         if val:
             user_list = val[room_name]['users'] + [val[room_name]['admin']]
-            sets = val[room_name]['users']
+            sets = val[room_name]['settings']
             if vir_ip not in user_list:
                 raise get_data_err('room', room_name, 'can\'t find room')
             return user_list, sets
@@ -378,7 +378,7 @@ class Room_manager:
             users, sets = self.db.get_room_data(data[0], self.client.vir_ip)
             msg = str(users)+ '#' +str(sets)
             size = len(msg)
-            return 's'+ str(size).ljust(3,'0') + msg
+            return 's'+ str(size).rjust(3,'0') + msg
         except get_data_err as e:
             return 'f'+str(e)
         except room_not_exist as e:
