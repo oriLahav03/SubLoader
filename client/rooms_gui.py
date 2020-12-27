@@ -12,27 +12,28 @@ class Ui_MainWindow(object):
         :return: None
         """
         # Main window setup
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedSize(425, 500)
+        self.main_win = MainWindow
+        self.main_win.setObjectName("MainWindow")
+        self.main_win.setFixedSize(425, 500)
 
         # QtWidgets Setups
-        self.central_widget = QtWidgets.QWidget(MainWindow)
+        self.central_widget = QtWidgets.QWidget(self.main_win)
         self.verticalLayout = QtWidgets.QVBoxLayout(self.central_widget)
         self.IP_label = QtWidgets.QLabel(self.central_widget)
         self.scrollArea = QtWidgets.QScrollArea(self.central_widget)
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
-        self.menu_bar = QtWidgets.QMenuBar(MainWindow)
+        self.menu_bar = QtWidgets.QMenuBar(self.main_win)
         self.menu_settings = QtWidgets.QMenu(self.menu_bar)
         self.menu_info = QtWidgets.QMenu(self.menu_bar)
-        self.status_bar = QtWidgets.QStatusBar(MainWindow)
+        self.status_bar = QtWidgets.QStatusBar(self.main_win)
         self.verticalSpacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum,
                                                     QtWidgets.QSizePolicy.Expanding)
 
         # Set up MainWindow - continue
         self.central_widget.setObjectName("central_widget")
         self.verticalLayout.setObjectName("verticalLayout")
-        MainWindow.setCentralWidget(self.central_widget)
+        self.main_win.setCentralWidget(self.central_widget)
 
         # What is my ip label setup
         font = QtGui.QFont()
@@ -54,14 +55,14 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.scrollArea)
 
         # MenuBar setup
-        MainWindow.setCentralWidget(self.central_widget)
+        self.main_win.setCentralWidget(self.central_widget)
         self.menu_bar.setGeometry(QtCore.QRect(0, 0, 354, 26))
         self.menu_bar.setObjectName("menu_bar")
         self.menu_settings.setObjectName("menu_settings")
         self.menu_info.setObjectName("menu_info")
-        MainWindow.setMenuBar(self.menu_bar)
+        self.main_win.setMenuBar(self.menu_bar)
         self.status_bar.setObjectName("status_bar")
-        MainWindow.setStatusBar(self.status_bar)
+        self.main_win.setStatusBar(self.status_bar)
         self.menu_bar.addAction(self.menu_settings.menuAction())
         self.menu_bar.addAction(self.menu_info.menuAction())
 
@@ -76,10 +77,10 @@ class Ui_MainWindow(object):
             self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
 
         # Set names
-        self.retranslateUi(MainWindow, user_ip)
+        self.retranslateUi(self.main_win, user_ip)
 
         # Run
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(self.main_win)
 
     def retranslateUi(self, mainWindow, user_ip):
         """
@@ -90,7 +91,7 @@ class Ui_MainWindow(object):
         """
         _translate = QtCore.QCoreApplication.translate
         mainWindow.setWindowTitle(_translate("MainWindow", "SubLoader"))
-        self.IP_label.setText(_translate("MainWindow", "your ip is: " + user_ip))
+        self.IP_label.setText(_translate("MainWindow", "user,ip: " + user_ip))
 
 
 if __name__ == "__main__":

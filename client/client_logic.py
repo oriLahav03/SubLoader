@@ -161,7 +161,7 @@ class Client_logic:
             else:
                 print('not an option')
                 continue
-            self.room_req = Room_req()
+            self.room_req = Room_req(self.sc)
             break
 
 

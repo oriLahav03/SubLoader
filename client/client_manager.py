@@ -1,5 +1,7 @@
 from client_logic import *
 from auth_manag import *
+from rooms_gui import *
+from rooms import *
 import sys
 import re
 from PyQt5 import QtWidgets as qtw
@@ -19,7 +21,10 @@ class Manager():
             if res:
                 qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail', str(res))
             else:
-                self.next_win()
+                my_dit = self.logic.un +" - "+self.logic.vir_ip
+                win_g = Ui_MainWindow(qtw.QMainWindow(), self.logic.networks, my_dit)
+                self.auth_mng.wig.hide()
+                self.next_win(win_g)
         except (email_err, pw_err, un_err) as e:
             qtw.QMessageBox.critical(self.auth_mng.wig, 'INPUT ERROR', str(e))
 
@@ -37,6 +42,7 @@ class Manager():
 
     def next_win(self, win = None):
         print("*room window*")
+        win.main_win.show()
      
     def start_gui(self):
         self.auth_mng.set_ui(self)
