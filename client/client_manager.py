@@ -14,6 +14,13 @@ class Manager():
         self.gui_app = qtw.QApplication(sys.argv)
         self.start_gui()
 
+    def __move_to_rooms(self):
+        my_dit = self.logic.un +" - "+self.logic.vir_ip
+        win_g = Ui_RoomsWindow()
+        self.auth_mng.wig.hide()
+        win_g.setup_ui(qtw.QMainWindow(), self.logic.networks_data, my_dit)
+        self.next_win(win_g)
+
     def make_singup(self):
         try:
             args = self.auth_mng.win.get_labels()
@@ -21,22 +28,19 @@ class Manager():
             if res:
                 qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail', str(res))
             else:
-                my_dit = self.logic.un +" - "+self.logic.vir_ip
-                win_g = Ui_MainWindow(qtw.QMainWindow(), self.logic.networks_data, my_dit)
-                self.auth_mng.wig.hide()
-                self.next_win(win_g)
+                self.__move_to_rooms()
         except (email_err, pw_err, un_err) as e:
             qtw.QMessageBox.critical(self.auth_mng.wig, 'INPUT ERROR', str(e))
 
         
     def make_login(self):
         try:
-            args = self.auth_mng.win.get_labels()
+            args = ['ttt@gmail.com', '1234567']#self.auth_mng.win.get_labels()
             res = self.logic.do_login(args[0], args[1])
             if res:
                 qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail', 'login unsuccessful \nusername or password incorrect')
             else:
-                self.next_win()
+                self.__move_to_rooms()
         except (email_err, pw_err) as e:
             qtw.QMessageBox.critical(self.auth_mng.wig, 'INPUT ERROR', str(e))
 
@@ -46,6 +50,7 @@ class Manager():
      
     def start_gui(self):
         self.auth_mng.set_ui(self)
+        self.make_login()
         sys.exit(self.gui_app.exec_())
 
 if __name__ == '__main__':

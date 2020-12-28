@@ -1,7 +1,7 @@
-from room_gui import Ui_room
+from room_gui import *
 
 
-class Ui_MainWindow(object):
+class Ui_RoomsWindow(object):
 
     def setupUi(self, MainWindow, rooms, user_ip):
         """
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     _MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = Ui_RoomsWindow()
     ui.setupUi(_MainWindow,
                {
                    'room1': ['ori', 'ilay', 'yossi1'],

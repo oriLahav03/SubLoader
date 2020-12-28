@@ -142,6 +142,7 @@ class Client_logic:
             self.vir_ip = ret_msg[1]
             self.my_networks = eval(ret_msg[2])
             self.un = ret_msg[0]
+            self.__get_rooms_data()
         else:
             print(self.sc.recv(128).decode())
             return True
@@ -161,9 +162,10 @@ class Client_logic:
             else:
                 print('not an option')
                 continue
-            self.room_req = Room_req(self.sc)
             break
-
+    
+    def init_room_req(self):
+        self.room_req = Room_req(self.sc)
 
 if __name__ == "__main__":
     clint = Client_logic()
