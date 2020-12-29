@@ -84,7 +84,7 @@ class Server:
             elif int(code) == 2:
                 out = self.handle_login(sc, req)
             else:
-                sc.send(b'00unknown code')
+                sc.send(b'00funknown code')
         return req[1]
 
     def send_to_all(self, from_cln, msg: str):
@@ -117,6 +117,7 @@ class Server:
 
         if is_connected:
             self.client_lock.acquire()
+            print("add: "+ str((sc, address, name)))
             self.clients_list.append((sc, address, name))
             self.Thread_count += 1
             self.client_lock.release()

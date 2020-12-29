@@ -409,12 +409,12 @@ class Room_manager:
                 elif code == '16':
                     sc.send('16'.encode() + self.__change_password(data).encode())
             else:
-                sc.send('fYou are not an admin'.encode())
+                sc.send(code.encode() + 'fYou are not an admin'.encode())
         elif code == '17':
             data = self.__get_data_with_size(sc)
             sc.send('17'.encode() + self.__change_settings(data).encode())
         else:
-            sc.send('finvalid code'.encode())
+            sc.send('00finvalid code'.encode())
 
 
 if __name__ == '__main__':
