@@ -178,10 +178,33 @@
      <string>info</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuRoom">
+    <property name="title">
+     <string>Room</string>
+    </property>
+    <addaction name="actionCreate_room_2"/>
+    <addaction name="actionJoin_room"/>
+   </widget>
    <addaction name="menusettings"/>
    <addaction name="menuinfo"/>
+   <addaction name="menuRoom"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionCreate_room">
+   <property name="text">
+    <string>Create room</string>
+   </property>
+  </action>
+  <action name="actionJoin_room">
+   <property name="text">
+    <string>Join room</string>
+   </property>
+  </action>
+  <action name="actionCreate_room_2">
+   <property name="text">
+    <string>Create room</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

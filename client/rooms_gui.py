@@ -1,5 +1,16 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from room_gui import Ui_room
+from SettingsDialog.Room_dialog import *
+
+
+ROOMS = {
+                   'room1': ['ori', 'ilay', 'yossi1'],
+                   'room2': ['ori', 'ilay', 'yossi2'],
+                   'room3': ['ori', 'ilay', 'yossi3'],
+                   'room4': ['ori', 'ilay', 'yossi1'],
+                   'room5': ['ori', 'ilay', 'yossi2'],
+                   'room6': ['ori', 'ilay', 'yossi3']
+               }
 
 
 class Ui_MainWindow(object):
@@ -24,9 +35,29 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.menu_bar = QtWidgets.QMenuBar(MainWindow)
-        self.menu_settings = QtWidgets.QMenu(self.menu_bar)
-        self.menu_info = QtWidgets.QMenu(self.menu_bar)
+
+        #
+        self.menu_Room = QtWidgets.QMenu(self.menu_bar)
+        self.menu_Room.setObjectName("menuRoom")
+        #
+
         self.status_bar = QtWidgets.QStatusBar(MainWindow)
+        self.actionCreate_room = QtWidgets.QAction(MainWindow)
+        self.actionCreate_room.setObjectName("actionCreate_room")
+        self.actionJoin_room = QtWidgets.QAction(MainWindow)
+        self.actionJoin_room.setObjectName("actionJoin_room")
+
+        self.actionCreate_room.triggered.connect(self.open_create_room_dialog)  # new dialog
+
+        self.actionCreate_room_2 = QtWidgets.QAction(MainWindow)
+        self.actionCreate_room_2.setObjectName("actionCreate_room_2")
+
+        #
+        self.menu_Room.addAction(self.actionCreate_room)
+        self.menu_Room.addAction(self.actionJoin_room)
+        self.menu_bar.addAction(self.menu_Room.menuAction())
+        #
+
         self.verticalSpacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum,
                                                     QtWidgets.QSizePolicy.Expanding)
 
@@ -58,13 +89,9 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.central_widget)
         self.menu_bar.setGeometry(QtCore.QRect(0, 0, 354, 26))
         self.menu_bar.setObjectName("menu_bar")
-        self.menu_settings.setObjectName("menu_settings")
-        self.menu_info.setObjectName("menu_info")
         MainWindow.setMenuBar(self.menu_bar)
         self.status_bar.setObjectName("status_bar")
         MainWindow.setStatusBar(self.status_bar)
-        self.menu_bar.addAction(self.menu_settings.menuAction())
-        self.menu_bar.addAction(self.menu_info.menuAction())
 
         # Adding the Widgets of the rooms
         for room_name, members in rooms.items():
@@ -92,6 +119,20 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         mainWindow.setWindowTitle(_translate("MainWindow", "SubLoader"))
         self.IP_label.setText(_translate("MainWindow", "your ip is: " + user_ip))
+        self.menu_Room.setTitle(_translate("MainWindow", "Room"))
+        self.actionCreate_room.setText(_translate("MainWindow", "Create room"))
+        self.actionJoin_room.setText(_translate("MainWindow", "Join room"))
+        self.actionCreate_room_2.setText(_translate("MainWindow", "Create room"))
+
+    def open_create_room_dialog(self):
+        window = Ui_Create_Room_Dialog()
+        room_name, room_pass = window.setupUi()
+        if room_name != '' and room_pass != '':
+            ROOMS[room_name] = list()  # TODO:add to rooms list
+            print("room name: ", room_name)
+            print("room password: ", room_pass)
+            for key, value in ROOMS.items():
+                print(f'{key} {str(value)}')
 
 
 if __name__ == "__main__":
@@ -100,14 +141,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     _MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(_MainWindow,
-               {
-                   'room1': ['ori', 'ilay', 'yossi1'],
-                   'room2': ['ori', 'ilay', 'yossi2'],
-                   'room3': ['ori', 'ilay', 'yossi3'],
-                   'room4': ['ori', 'ilay', 'yossi1'],
-                   'room5': ['ori', 'ilay', 'yossi2'],
-                   'room6': ['ori', 'ilay', 'yossi3']
-               }, '25.200.0.10')
+    ui.setupUi(_MainWindow, ROOMS, '25.200.0.10')
     _MainWindow.show()
     sys.exit(app.exec_())
+
