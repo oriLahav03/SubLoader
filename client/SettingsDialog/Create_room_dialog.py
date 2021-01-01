@@ -48,8 +48,10 @@ class Ui_Create_Room_Dialog(object):
         self.room_password.setObjectName("room_password")
         self.gridLayout.addWidget(self.room_password, 1, 1, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 1, 0, 1, 2)
+        self.Create_Room_Dialog.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
+        self.cancel = False
 
-        self.retranslateUi(self.Create_Room_Dialog)
+        self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self.Create_Room_Dialog)
 
         self.cancel_btn.clicked.connect(self.cancel_clicked)
@@ -57,11 +59,11 @@ class Ui_Create_Room_Dialog(object):
 
         self.Create_Room_Dialog.exec_()
 
-        return self.room_name.text(), self.room_password.text()
+        return str(self.room_name.text()), str(self.room_password.text()), self.cancel
 
-    def retranslateUi(self, Create_Room_Dialog):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Create_Room_Dialog.setWindowTitle(_translate("Create_Room_Dialog", "Create new room"))
+        self.Create_Room_Dialog.setWindowTitle(_translate("Create_Room_Dialog", "Create new room"))
         self.create_btn.setText(_translate("Create_Room_Dialog", "Create"))
         self.title_label.setText(_translate("Create_Room_Dialog", "Create new room"))
         self.cancel_btn.setText(_translate("Create_Room_Dialog", "Cancel"))
@@ -72,6 +74,7 @@ class Ui_Create_Room_Dialog(object):
 
     def cancel_clicked(self):
         self.Create_Room_Dialog.close()
+        self.cancel = True
 
     def create_clicked(self):
         if (self.room_name.text() != "" and self.room_password.text() != "") or not self.cancel_btn.clicked:
