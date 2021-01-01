@@ -77,12 +77,12 @@ class Ui_Create_Room_Dialog(object):
         self.cancel = True
 
     def create_clicked(self):
-        if (self.room_name.text() != "" and self.room_password.text() != "") or not self.cancel_btn.clicked:
+        if self.room_name.text() != "" or not self.cancel_btn.clicked:
             self.Create_Room_Dialog.close()
         else:
             msgBox = QtWidgets.QMessageBox()
             msgBox.setIcon(QtWidgets.QMessageBox.Critical)
-            msgBox.setText("You need to enter room name and \nroom password to create the room")
+            msgBox.setText("You need to enter room name to create the room")
             msgBox.setWindowTitle("Wrong Parameters")
             msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
             msgBox.exec()

@@ -4,30 +4,12 @@ from SettingsDialog.Join_room_dialog import *
 
 
 ROOMS = {
-       'room1': {
-           'members': ['ori', 'ilay', 'yossi1'],
-           'password': "123"
-       },
-       'room2': {
-           'members': ['ori', 'ilay', 'yossi2'],
-           'password': "456"
-       },
-       'room3': {
-           'members': ['ori', 'ilay', 'yossi3'],
-           'password': "789"
-       },
-       'room4': {
-           'members': ['ori', 'ilay', 'yossi1'],
-           'password': "101"
-       },
-       'room5': {
-           'members': ['ori', 'ilay', 'yossi2'],
-           'password': "112"
-       },
-       'room6': {
-           'members': ['ori', 'ilay', 'yossi3'],
-           'password': "131"
-       }
+       'room1': ['ori', 'ilay', 'yossi1'],
+       'room2': ['ori', 'ilay', 'yossi2'],
+       'room3': ['ori', 'ilay', 'yossi3'],
+       'room4': ['ori', 'ilay', 'yossi1'],
+       'room5': ['ori', 'ilay', 'yossi2'],
+       'room6': ['ori', 'ilay', 'yossi3']
 }
 USER_NAME = "Ori"
 
@@ -131,10 +113,8 @@ class Ui_MainWindow(object):
     def open_create_room_dialog(self):
         window = Ui_Create_Room_Dialog()
         room_name, room_pass, cancel = window.setupUi()
-        if room_name != '' and room_pass != '' and not cancel:
-            ROOMS[room_name] = dict()  # TODO: add to rooms list
-            ROOMS[room_name]['members'] = list()
-            ROOMS[room_name]['password'] = room_pass
+        if room_name != '' and not cancel:
+            ROOMS[room_name] = list()  # TODO: add to rooms list
             for key, value in ROOMS.items():
                 print(f'{key} {str(value)}')
 
@@ -143,8 +123,8 @@ class Ui_MainWindow(object):
         room_name, room_pass, cancel = window.setupUi()
         if cancel:
             pass
-        elif room_name in ROOMS.keys() and room_pass == ROOMS[room_name]['password']:
-            ROOMS[room_name]['members'].append(USER_NAME)  # TODO: get list from db
+        elif room_name in ROOMS.keys():
+            ROOMS[room_name].append(USER_NAME)  # TODO: get username and append to db room members list
             for key, value in ROOMS.items():
                 print(f'{key} {str(value)}')
         else:
@@ -160,7 +140,7 @@ class Ui_MainWindow(object):
             room = Ui_room()
             _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
                      Ui_room.setWindowTitle(room, "room")}
-            Ui_room.setupUi(room, _room=_room, members=members['members'], _room_name=room_name)
+            Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
             room.adjustSize()
             self.verticalLayout_2.addWidget(room)
             self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
