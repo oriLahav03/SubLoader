@@ -104,7 +104,9 @@ class Ui_MainWindow(object):
         self.status_bar.setObjectName("status_bar")
         MainWindow.setStatusBar(self.status_bar)
 
+        # Adding the Widgets of the rooms
         self.update_rooms()
+
         # Set names
         self.retranslateUi(MainWindow, user_ip)
 
@@ -154,12 +156,11 @@ class Ui_MainWindow(object):
             msgBox.exec()
 
     def update_rooms(self):
-        # Adding the Widgets of the rooms
         for room_name, members in self.rooms.items():
             room = Ui_room()
             _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
                      Ui_room.setWindowTitle(room, "room")}
-            Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
+            Ui_room.setupUi(room, _room=_room, members=members['members'], _room_name=room_name)
             room.adjustSize()
             self.verticalLayout_2.addWidget(room)
             self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
