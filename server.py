@@ -84,16 +84,14 @@ class Server:
         """
         while True:
             Client, address = self.ServerSocket.accept()
-            print('Connected to: ' + address[0] + ':' + str(address[1]))
             con_type = Client.recv(1).decode()
-            if con_type == 'a':              #a for our app connection p to a proxy connection
+            if con_type == 'a':              #a for our app connection
                 start_new_thread(self.threaded_client, (Client, address))
-            elif con_type == 'p':
+            elif con_type == 'p':            #p for proxy connection
                 start_new_thread(self.proxy.new_con, (Client, address))
             else:
                 Client.sendall(b'00not chose type of connection')
                 Client.close()
-            print('Thread Number: ' + str(self.Thread_count))
 
     def send_to_all(self, from_cln, msg: str):
         """
@@ -122,11 +120,13 @@ class Server:
             print(str(e))
             is_connected = False
 
-        if is_connected:
+        if is_connected: 
             self.client_lock.acquire()
             self.clients_list[(sc, address)] = Client(sc, address, usr_data[1], usr_data[0],usr_data[2],usr_data[3], usr_data[4])
             self.Thread_count += 1
             self.client_lock.release()
+            print(usr_data[1] + ' connected from '+ address)
+            print('client-' + str(self.Thread_count))
 
             while True:
                 try:

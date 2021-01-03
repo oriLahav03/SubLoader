@@ -1,5 +1,4 @@
 from vpn_manager import *
-import socket
 import random
 from threading import *
 

@@ -1,3 +1,5 @@
+import socket
+
 class Room():
     """
     manage room info
