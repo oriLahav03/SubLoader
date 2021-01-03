@@ -299,9 +299,8 @@ class NewRoom:
 
 
 class Room_manager:
-    def __init__(self, db: Google_DB, client):
+    def __init__(self, db: Google_DB):
         self.db = db
-        self.client = client
 
     def __get_data_with_size(self, sc: socket.socket):
         size = int(sc.recv(3).decode())
@@ -321,16 +320,16 @@ class Room_manager:
         except name_taken as e:
             return 'f' + str(e)
 
-    def __join_room(self, data: list):
+    def __join_room(self, data: list, vir_ip):
         try:
-            self.db.join_room(data[0], self.client.vir_ip, data[1])
+            self.db.join_room(data[0], vir_ip, data[1])
             return 's'
         except join_room_err as e:
             return 'f' + str(e)
 
-    def __leave_room(self, data: list):
+    def __leave_room(self, data: list, vir_ip):
         try:
-            self.db.remove_from_room(data[0], self.client.vir_ip)
+            self.db.remove_from_room(data[0], vir_ip)
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
@@ -370,12 +369,12 @@ class Room_manager:
         except room_not_exist as e:
             return 'f' + str(e)
 
-    def __give_room_data(self, data: list):
+    def __give_room_data(self, data: list, vir_ip):
         """
         get room data from db and send
         """
         try:
-            users, sets = self.db.get_room_data(data[0], self.client.vir_ip)
+            users, sets = self.db.get_room_data(data[0], vir_ip)
             msg = str(users)+ '#' +str(sets)
             size = len(msg)
             return 's'+ str(size).rjust(3,'0') + msg
@@ -384,37 +383,37 @@ class Room_manager:
         except room_not_exist as e:
             return 'f' + str(e)
 
-    def handle_request(self, sc: socket.socket):
-        code = sc.recv(2).decode()  # code
+    def handle_request(self, clnt):
+        code = clnt.sc.recv(2).decode()  # code
         if code == '10':
-            data = self.__get_data_with_size(sc)
-            sc.send('10'.encode() + self.__new_room(data).encode())
+            data = self.__get_data_with_size(clnt.sc)
+            clnt.sc.send('10'.encode() + self.__new_room(data).encode())
         elif code == '11':
-            data = self.__get_data(sc)
-            sc.send('11'.encode() + self.__join_room(data).encode())
+            data = self.__get_data(clnt.sc)
+            clnt.sc.send('11'.encode() + self.__join_room(data, clnt.vir_ip).encode())
         elif code == '18':
-            data = self.__get_data(sc)
-            sc.send('18'.encode() + self.__give_room_data(data).encode())
+            data = self.__get_data(clnt.sc)
+            clnt.sc.send('18'.encode() + self.__give_room_data(data, clnt.vir_ip).encode())
         elif code != '17':
-            data = self.__get_data(sc)
-            if self.db.is_room_admin(data[0], self.client.vir_ip):
+            data = self.__get_data(clnt.sc)
+            if self.db.is_room_admin(data[0], clnt.vir_ip):
                 if code == '12':  # TODO: give the admin to another if admin leave
-                    sc.send('12'.encode() + self.__leave_room(data).encode())
+                    clnt.sc.send('12'.encode() + self.__leave_room(data, clnt.vir_ip).encode())
                 elif code == '13':
-                    sc.send('13'.encode() + self.__change_admin_in_room(data).encode())
+                    clnt.sc.send('13'.encode() + self.__change_admin_in_room(data).encode())
                 elif code == '14':
-                    sc.send('14'.encode() + self.__kick_from_room(data).encode())
+                    clnt.sc.send('14'.encode() + self.__kick_from_room(data).encode())
                 elif code == '15':
-                    sc.send('15'.encode() + self.__delete_room(data).encode())
+                    clnt.sc.send('15'.encode() + self.__delete_room(data).encode())
                 elif code == '16':
-                    sc.send('16'.encode() + self.__change_password(data).encode())
+                    clnt.sc.send('16'.encode() + self.__change_password(data).encode())
             else:
-                sc.send(code.encode() + 'fYou are not an admin'.encode())
+                clnt.sc.send(code.encode() + 'fYou are not an admin'.encode())
         elif code == '17':
-            data = self.__get_data_with_size(sc)
-            sc.send('17'.encode() + self.__change_settings(data).encode())
+            data = self.__get_data_with_size(clnt.sc)
+            clnt.sc.send('17'.encode() + self.__change_settings(data).encode())
         else:
-            sc.send('00finvalid code'.encode())
+            clnt.sc.send('00finvalid code'.encode())
 
 
 if __name__ == '__main__':

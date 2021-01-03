@@ -122,7 +122,6 @@ class Server:
 
         if is_connected: 
             self.client_lock.acquire()
-            print("add: "+ str((sc, address, usr_data[1])))
             self.clients_list[(sc, address)] = Client(sc, address, usr_data[1], usr_data[0],usr_data[2],usr_data[3], usr_data[4])
             self.Thread_count += 1
             self.client_lock.release()
