@@ -289,7 +289,6 @@ class Google_DB:
             raise room_not_exist(room_name)
             
 
-
 class NewRoom:
     def __init__(self, data: list):
         self.name = data[0]
@@ -373,9 +372,11 @@ class Room_manager:
         """
         get room data from db and send
         """
+        print('\ngive room from db')
         try:
             users, sets = self.db.get_room_data(data[0], vir_ip)
             msg = str(users)+ '#' +str(sets)
+            print(msg)
             size = len(msg)
             return 's'+ str(size).rjust(3,'0') + msg
         except get_data_err as e:
@@ -384,22 +385,22 @@ class Room_manager:
             return 'f' + str(e)
 
     def handle_request(self, clnt):
-        code = clnt.sc.recv(2).decode()  # code
+        code = clnt.sc.recv(2).decode()  # msg code
         if code == '10':
             data = self.__get_data_with_size(clnt.sc)
             clnt.sc.send('10'.encode() + self.__new_room(data).encode())
         elif code == '11':
             data = self.__get_data(clnt.sc)
             clnt.sc.send('11'.encode() + self.__join_room(data, clnt.vir_ip).encode())
+        elif code == '12':  # TODO: give the admin to another if admin leave
+            clnt.sc.send('12'.encode() + self.__leave_room(data, clnt.vir_ip).encode())
         elif code == '18':
             data = self.__get_data(clnt.sc)
             clnt.sc.send('18'.encode() + self.__give_room_data(data, clnt.vir_ip).encode())
         elif code != '17':
             data = self.__get_data(clnt.sc)
             if self.db.is_room_admin(data[0], clnt.vir_ip):
-                if code == '12':  # TODO: give the admin to another if admin leave
-                    clnt.sc.send('12'.encode() + self.__leave_room(data, clnt.vir_ip).encode())
-                elif code == '13':
+                if code == '13':
                     clnt.sc.send('13'.encode() + self.__change_admin_in_room(data).encode())
                 elif code == '14':
                     clnt.sc.send('14'.encode() + self.__kick_from_room(data).encode())

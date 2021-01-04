@@ -12,9 +12,12 @@ class Server:
         self.client_lock = allocate_lock()
         self.Thread_count = 0
         self.clients_list = {}
+
         self.gdb = db  # db
         self.proxy = Proxy(self.clients_list, self.client_lock)
-        self.ServerSocket = socket.socket()  # main socket
+        self.room_mng = Room_manager(db)
+
+        self.ServerSocket = socket.socket()  # srvr socket
         try:
             self.ServerSocket.bind((host, port))
         except socket.error as e:
@@ -38,7 +41,7 @@ class Server:
             return False,(s_up.email,s_up.username,res[1],[], res[2])
         else:
             cln_sc.sendall(('01f' + res[1]).encode())
-            return True,0
+            return True,None
 
     def handle_login(self, cln_sc, req: list):
         """
@@ -52,10 +55,10 @@ class Server:
         if res[0]:
             user_info = res[1][0] + '!' + res[1][1] +'!'+ str(res[1][2])
             cln_sc.sendall(('02s'+ str(len(user_info)).rjust(3,'0') + user_info).encode())
-            return False,(l_in.email, res[1][0], res[1][1], res[1][2],res[1][0])
+            return False,(l_in.email, res[1][0], res[1][1], res[1][2],res[1][3])
         else:
             cln_sc.sendall(('02f' + res[1]).encode())
-            return True,0
+            return True,None
 
     def new_auth(self, sc: socket.socket):
         """
@@ -64,18 +67,18 @@ class Server:
         :return: user info.
         """
         req_msg = 0
-        out = (True,)
-        while out[0]:
+        out = True
+        while out:
             code = sc.recv(2).decode()
             req_msg = sc.recv(256).decode()
             req = req_msg.split('!')
             if int(code) == 1:
-                out = self.handle_singup(sc, req)
+                out, data = self.handle_singup(sc, req)
             elif int(code) == 2:
-                out = self.handle_login(sc, req)
+                out, data = self.handle_login(sc, req)
             else:
                 sc.send(b'00funknown code')
-        return req[1]
+        return data
 
     def accept_clients(self):
         """
@@ -125,11 +128,13 @@ class Server:
             self.clients_list[(sc, address)] = Client(sc, address, usr_data[1], usr_data[0],usr_data[2],usr_data[3], usr_data[4])
             self.Thread_count += 1
             self.client_lock.release()
-            print(usr_data[1] + ' connected from '+ address)
+            print(usr_data[1] + ' connected from '+ address[0])
             print('client-' + str(self.Thread_count))
 
             while True:
                 try:
+                    self.room_mng.handle_request(self.clients_list[(sc, address)])
+                    continue
                     data = sc.recv(512).decode()
                     if not data or data == 'q':
                         break

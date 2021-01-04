@@ -15,6 +15,7 @@ class Manager():
         self.start_gui()
 
     def __move_to_rooms(self):
+        self.logic.init_room_req()
         my_dit = self.logic.un +" - "+self.logic.vir_ip
         win_g = Ui_RoomsWindow()
         self.auth_mng.wig.hide()
@@ -43,6 +44,8 @@ class Manager():
                 self.__move_to_rooms()
         except (email_err, pw_err) as e:
             qtw.QMessageBox.critical(self.auth_mng.wig, 'INPUT ERROR', str(e))
+        except get_data_err as e:
+            qtw.QMessageBox.critical(self.auth_mng.wig, 'Get data', str(e))
 
     def next_win(self, win = None):
         print("*room window*")

@@ -29,6 +29,7 @@ class Client_logic:
         print('try to connect..')
         try:
             self.sc.connect((host, port))
+            self.sc.sendall(b'a')
         except socket.error as e:
             print(str(e))
             exit()
@@ -91,7 +92,7 @@ class Client_logic:
                 data = self.sc.recv(s).decode().split('#')+['']
                 self.networks_data[room] = data[:2]
             else:
-                err_rooms+=room
+                err_rooms+=[room]
         if len(err_rooms):
             raise get_data_err('rooms', err_rooms)
 
@@ -158,7 +159,6 @@ class Client_logic:
             elif c == 2:
                 if self.__do_login():
                     continue
-                self.__get_rooms_data()
             else:
                 print('not an option')
                 continue
