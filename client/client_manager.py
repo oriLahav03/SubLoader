@@ -18,9 +18,11 @@ class Manager():
         self.logic.init_room_req()
         my_dit = self.logic.un +" - "+self.logic.vir_ip
         win_g = Ui_RoomsWindow()
-        self.auth_mng.wig.hide()
+        self.auth_mng.wig.close()
         win_g.setupUi(qtw.QMainWindow(), self.logic.networks_data, my_dit)
         self.next_win(win_g)
+        self.auth_mng.win = win_g
+        self.wintype = "main"
 
     def make_singup(self):
         try:
@@ -49,7 +51,7 @@ class Manager():
 
     def next_win(self, win = None):
         print("*room window*")
-        win.main_win.show()
+        win.wig.show()
      
     def start_gui(self):
         self.auth_mng.set_ui(self)

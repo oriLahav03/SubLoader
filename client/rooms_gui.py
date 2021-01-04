@@ -12,28 +12,28 @@ class Ui_RoomsWindow(object):
         :return: None
         """
         # Main window setup
-        self.main_win = MainWindow
-        self.main_win.setObjectName("MainWindow")
-        self.main_win.setFixedSize(425, 500)
+        self.wig = MainWindow
+        self.wig.setObjectName("MainWindow")
+        self.wig.setFixedSize(425, 500)
 
         # QtWidgets Setups
-        self.central_widget = QtWidgets.QWidget(self.main_win)
+        self.central_widget = QtWidgets.QWidget(self.wig)
         self.verticalLayout = QtWidgets.QVBoxLayout(self.central_widget)
         self.IP_label = QtWidgets.QLabel(self.central_widget)
         self.scrollArea = QtWidgets.QScrollArea(self.central_widget)
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
-        self.menu_bar = QtWidgets.QMenuBar(self.main_win)
+        self.menu_bar = QtWidgets.QMenuBar(self.wig)
         self.menu_settings = QtWidgets.QMenu(self.menu_bar)
         self.menu_info = QtWidgets.QMenu(self.menu_bar)
-        self.status_bar = QtWidgets.QStatusBar(self.main_win)
+        self.status_bar = QtWidgets.QStatusBar(self.wig)
         self.verticalSpacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum,
                                                     QtWidgets.QSizePolicy.Expanding)
 
         # Set up MainWindow - continue
         self.central_widget.setObjectName("central_widget")
         self.verticalLayout.setObjectName("verticalLayout")
-        self.main_win.setCentralWidget(self.central_widget)
+        self.wig.setCentralWidget(self.central_widget)
 
         # What is my ip label setup
         font = QtGui.QFont()
@@ -55,14 +55,14 @@ class Ui_RoomsWindow(object):
         self.verticalLayout.addWidget(self.scrollArea)
 
         # MenuBar setup
-        self.main_win.setCentralWidget(self.central_widget)
+        self.wig.setCentralWidget(self.central_widget)
         self.menu_bar.setGeometry(QtCore.QRect(0, 0, 354, 26))
         self.menu_bar.setObjectName("menu_bar")
         self.menu_settings.setObjectName("menu_settings")
         self.menu_info.setObjectName("menu_info")
-        self.main_win.setMenuBar(self.menu_bar)
+        self.wig.setMenuBar(self.menu_bar)
         self.status_bar.setObjectName("status_bar")
-        self.main_win.setStatusBar(self.status_bar)
+        self.wig.setStatusBar(self.status_bar)
         self.menu_bar.addAction(self.menu_settings.menuAction())
         self.menu_bar.addAction(self.menu_info.menuAction())
 
@@ -72,9 +72,9 @@ class Ui_RoomsWindow(object):
             self.add_room(room_name, members)
 
         # Set names
-        self.retranslateUi(self.main_win, user_ip)
+        self.retranslateUi(self.wig, user_ip)
         # Run
-        QtCore.QMetaObject.connectSlotsByName(self.main_win)
+        QtCore.QMetaObject.connectSlotsByName(self.wig)
 
     def retranslateUi(self, mainWindow, user_ip):
         """
@@ -93,7 +93,7 @@ class Ui_RoomsWindow(object):
             temp_data[n] = dt[0]
         return temp_data
 
-    def add_room(self, name, members):
+    def add_room(self, room_name, members):
         room = Ui_room()
         _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
                     Ui_room.setWindowTitle(room, "room")}
