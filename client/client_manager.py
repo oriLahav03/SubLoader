@@ -19,7 +19,7 @@ class Manager():
         my_dit = self.logic.un +" - "+self.logic.vir_ip
         win_g = Ui_RoomsWindow()
         self.auth_mng.wig.hide()
-        win_g.setup_ui(qtw.QMainWindow(), self.logic.networks_data, my_dit)
+        win_g.setupUi(qtw.QMainWindow(), self.logic.networks_data, my_dit)
         self.next_win(win_g)
 
     def make_singup(self):

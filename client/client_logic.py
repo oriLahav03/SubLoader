@@ -89,8 +89,8 @@ class Client_logic:
             res = self.sc.recv(3).decode()
             if res[2] == 's':
                 s = int(self.sc.recv(3).decode())
-                data = self.sc.recv(s).decode().split('#')+['']
-                self.networks_data[room] = data[:2]
+                data = self.sc.recv(s).decode().split('#')+['{}']
+                self.networks_data[room] = [eval(i) for i in data[:2]]
             else:
                 err_rooms+=[room]
         if len(err_rooms):

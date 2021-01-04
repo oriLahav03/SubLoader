@@ -69,17 +69,10 @@ class Ui_RoomsWindow(object):
         # Adding the Widgets of the rooms
         rooms_build = self.__build_rooms_data(rooms)
         for room_name, members in rooms_build.items():
-            room = Ui_room()
-            _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
-                     Ui_room.setWindowTitle(room, "room")}
-            Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
-            room.adjustSize()
-            self.verticalLayout_2.addWidget(room)
-            self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
+            self.add_room(room_name, members)
 
         # Set names
         self.retranslateUi(self.main_win, user_ip)
-
         # Run
         QtCore.QMetaObject.connectSlotsByName(self.main_win)
 
@@ -96,9 +89,18 @@ class Ui_RoomsWindow(object):
 
     def __build_rooms_data(self, rooms_data):
         temp_data = {}
-        for n,dt in rooms_data:
+        for n,dt in rooms_data.items():
             temp_data[n] = dt[0]
         return temp_data
+
+    def add_room(self, name, members):
+        room = Ui_room()
+        _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
+                    Ui_room.setWindowTitle(room, "room")}
+        Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
+        room.adjustSize()
+        self.verticalLayout_2.addWidget(room)
+        self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
 
 if __name__ == "__main__":
     import sys
