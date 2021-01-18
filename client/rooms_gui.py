@@ -37,7 +37,7 @@ class Ui_RoomsWindow(object):
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.menu_bar = QtWidgets.QMenuBar(self.wig)
-        self.rooms = rooms
+        self.rooms = self.__build_rooms_data(rooms)
         self.menu_Room = QtWidgets.QMenu(self.menu_bar)
         self.menu_Room.setObjectName("menuRoom")
         self.status_bar = QtWidgets.QStatusBar(self.wig)

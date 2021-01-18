@@ -1,7 +1,7 @@
 import socket
 from _thread import *
 from client_err import *
-from rooms import *
+from rooms_logic import *
 import re
 
 host = '127.0.0.1'

@@ -81,7 +81,7 @@ class Ui_room(QtWidgets.QWidget):
     def set_member(self, member):
         """
         Put the members of a room in it
-        :param member: the members
+        :param member: the member
         :return: None
         """
         _translate = QtCore.QCoreApplication.translate

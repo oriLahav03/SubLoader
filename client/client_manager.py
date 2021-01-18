@@ -1,7 +1,6 @@
 from client_logic import *
 from auth_manag import *
 from rooms_gui import *
-from rooms import *
 import sys
 import re
 from PyQt5 import QtWidgets as qtw
