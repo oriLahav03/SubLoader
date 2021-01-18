@@ -1,4 +1,17 @@
 from room_gui import *
+from Create_room_dialog import *
+from Join_room_dialog import *
+
+
+ROOMS = {
+       'room1': ['ori', 'ilay', 'yossi1'],
+       'room2': ['ori', 'ilay', 'yossi2'],
+       'room3': ['ori', 'ilay', 'yossi3'],
+       'room4': ['ori', 'ilay', 'yossi1'],
+       'room5': ['ori', 'ilay', 'yossi2'],
+       'room6': ['ori', 'ilay', 'yossi3']
+}
+USER_NAME = "Ori"
 
 
 class Ui_RoomsWindow(object):
@@ -24,9 +37,21 @@ class Ui_RoomsWindow(object):
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.menu_bar = QtWidgets.QMenuBar(self.wig)
-        self.menu_settings = QtWidgets.QMenu(self.menu_bar)
-        self.menu_info = QtWidgets.QMenu(self.menu_bar)
+        self.rooms = rooms
+        self.menu_Room = QtWidgets.QMenu(self.menu_bar)
+        self.menu_Room.setObjectName("menuRoom")
         self.status_bar = QtWidgets.QStatusBar(self.wig)
+        self.actionCreate_room = QtWidgets.QAction(self.wig)
+        self.actionCreate_room.setObjectName("actionCreate_room")
+        self.actionJoin_room = QtWidgets.QAction(self.wig)
+        self.actionJoin_room.setObjectName("actionJoin_room")
+        self.actionCreate_room.triggered.connect(self.open_create_room_dialog)  # new dialog
+        self.actionJoin_room.triggered.connect(self.open_join_room_dialog)  # new dialog
+        self.actionCreate_room_2 = QtWidgets.QAction(self.wig)
+        self.actionCreate_room_2.setObjectName("actionCreate_room_2")
+        self.menu_Room.addAction(self.actionCreate_room)
+        self.menu_Room.addAction(self.actionJoin_room)
+        self.menu_bar.addAction(self.menu_Room.menuAction())
         self.verticalSpacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum,
                                                     QtWidgets.QSizePolicy.Expanding)
 
@@ -58,24 +83,18 @@ class Ui_RoomsWindow(object):
         self.wig.setCentralWidget(self.central_widget)
         self.menu_bar.setGeometry(QtCore.QRect(0, 0, 354, 26))
         self.menu_bar.setObjectName("menu_bar")
-        self.menu_settings.setObjectName("menu_settings")
-        self.menu_info.setObjectName("menu_info")
         self.wig.setMenuBar(self.menu_bar)
         self.status_bar.setObjectName("status_bar")
         self.wig.setStatusBar(self.status_bar)
-        self.menu_bar.addAction(self.menu_settings.menuAction())
-        self.menu_bar.addAction(self.menu_info.menuAction())
 
         # Adding the Widgets of the rooms
-        rooms_build = self.__build_rooms_data(rooms)
-        for room_name, members in rooms_build.items():
-            self.add_room(room_name, members)
+        self.update_rooms()
 
         # Set names
         self.retranslateUi(self.wig, user_ip)
         # Run
         QtCore.QMetaObject.connectSlotsByName(self.wig)
-
+    
     def retranslateUi(self, mainWindow, user_ip):
         """
         The function set all the names.
@@ -86,14 +105,78 @@ class Ui_RoomsWindow(object):
         _translate = QtCore.QCoreApplication.translate
         mainWindow.setWindowTitle(_translate("MainWindow", "SubLoader"))
         self.IP_label.setText(_translate("MainWindow", "user,ip: " + user_ip))
+        self.menu_Room.setTitle(_translate("MainWindow", "Room"))
+        self.actionCreate_room.setText(_translate("MainWindow", "Create room"))
+        self.actionJoin_room.setText(_translate("MainWindow", "Join room"))
+        self.actionCreate_room_2.setText(_translate("MainWindow", "Create room"))
+
+    def open_create_room_dialog(self):
+        """make the create room dialog page
+            and show it
+        """
+        window = Ui_Create_Room_Dialog()
+        room_name, room_pass, cancel = window.setupUi()
+        if room_name != '' and not cancel:
+            ROOMS[room_name] = list()  # TODO: add to rooms list
+            for key, value in ROOMS.items():
+                print(f'{key} {str(value)}')
+
+    def open_join_room_dialog(self):
+        """make the join room dialog page
+            and show it
+        """
+        window = Ui_Join_Room_Dialog()
+        room_name, room_pass, cancel = window.setupUi()
+        if cancel:
+            pass
+        elif room_name in ROOMS.keys():
+            ROOMS[room_name].append(USER_NAME)  # TODO: get username and append to db room members list
+            for key, value in ROOMS.items():
+                print(f'{key} {str(value)}')
+        else:
+            msgBox = QtWidgets.QMessageBox()
+            msgBox.setIcon(QtWidgets.QMessageBox.Critical)
+            msgBox.setText("Invalid room name or password")
+            msgBox.setWindowTitle("Wrong Parameters")
+            msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msgBox.exec()
 
     def __build_rooms_data(self, rooms_data):
+        """convert the data from the logic that came in dict 
+        but the value is a list and not olny str for ip
+
+        Args:
+            rooms_data (dict): [data from the logic]
+
+        Returns:
+            [dict]: [data that the gui can display]
+        """
         temp_data = {}
         for n,dt in rooms_data.items():
             temp_data[n] = dt[0]
         return temp_data
 
+    def update_rooms(self):
+        """update the rooms view if a room added or delted
+        use only after update the room list data
+        """
+
+        for room_name, members in self.rooms.items():
+            room = Ui_room()
+            _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
+                     Ui_room.setWindowTitle(room, "room")}
+            Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
+            room.adjustSize()
+            self.verticalLayout_2.addWidget(room)
+            self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
+
     def add_room(self, room_name, members):
+        """add single room to the app view
+
+        Args:
+            room_name (str): [the name of the room]
+            members (list): [list of user's ip that in the room]
+        """
         room = Ui_room()
         _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
                     Ui_room.setWindowTitle(room, "room")}
@@ -108,14 +191,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     _MainWindow = QtWidgets.QMainWindow()
     ui = Ui_RoomsWindow()
-    ui.setupUi(_MainWindow,
-               {
-                   'room1': ['ori', 'ilay', 'yossi1'],
-                   'room2': ['ori', 'ilay', 'yossi2'],
-                   'room3': ['ori', 'ilay', 'yossi3'],
-                   'room4': ['ori', 'ilay', 'yossi1'],
-                   'room5': ['ori', 'ilay', 'yossi2'],
-                   'room6': ['ori', 'ilay', 'yossi3']
-               }, '25.200.0.10')
+    ui.setupUi(_MainWindow, ROOMS, '25.200.0.10')
     _MainWindow.show()
     sys.exit(app.exec_())
+
