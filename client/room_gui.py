@@ -40,7 +40,7 @@ class Ui_room(QtWidgets.QWidget):
         self.verticalLayout_2.addLayout(self.holder)
 
         # Creating the room
-        self.set__room(_room_name)
+        self.set_room(_room_name)
 
         # Add the members to the room
         for member in members:
@@ -64,7 +64,7 @@ class Ui_room(QtWidgets.QWidget):
         """
         _translate = QtCore.QCoreApplication.translate
 
-    def set__room(self, _room_name):
+    def set_room(self, _room_name):
         """
         creating the rooms
         :param _room_name: the name of the room

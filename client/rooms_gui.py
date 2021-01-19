@@ -14,7 +14,9 @@ ROOMS = {
 USER_NAME = "Ori"
 
 
-class Ui_RoomsWindow(object):
+class Ui_RoomsWindow():
+    def __init__(self, main_mng):
+        self.mng = main_mng
 
     def setupUi(self, MainWindow, rooms, user_ip):
         """
@@ -28,6 +30,7 @@ class Ui_RoomsWindow(object):
         self.wig = MainWindow
         self.wig.setObjectName("MainWindow")
         self.wig.setFixedSize(425, 500)
+        self.my_ip = user_ip.split(',')[1]
 
         # QtWidgets Setups
         self.central_widget = QtWidgets.QWidget(self.wig)
@@ -117,6 +120,13 @@ class Ui_RoomsWindow(object):
         window = Ui_Create_Room_Dialog()
         room_name, room_pass, cancel = window.setupUi()
         if room_name != '' and not cancel:
+            res = self.mng.logic.room_req.new_room(room_name, room_pass, True, self.my_ip)
+            if res == 's':
+                QtWidgets.QMessageBox.information(self.wig, "New Room Created", "")
+                self.rooms.append(room_name)
+                self.add_room(room_name, [self.my_ip])
+            else:
+                QtWidgets.QMessageBox.critical(self.wig, "Create Room Fail", res[1:])
             ROOMS[room_name] = list()  # TODO: add to rooms list
             for key, value in ROOMS.items():
                 print(f'{key} {str(value)}')
@@ -162,13 +172,7 @@ class Ui_RoomsWindow(object):
         """
 
         for room_name, members in self.rooms.items():
-            room = Ui_room()
-            _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
-                     Ui_room.setWindowTitle(room, "room")}
-            Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
-            room.adjustSize()
-            self.verticalLayout_2.addWidget(room)
-            self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
+            self.add_room(room_name, members)
 
     def add_room(self, room_name, members):
         """add single room to the app view

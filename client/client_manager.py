@@ -16,7 +16,7 @@ class Manager():
     def __move_to_rooms(self):
         self.logic.init_room_req()
         my_dit = self.logic.un +" - "+self.logic.vir_ip
-        win_g = Ui_RoomsWindow()
+        win_g = Ui_RoomsWindow(self)
         self.auth_mng.wig.close()
         win_g.setupUi(qtw.QMainWindow(), self.logic.networks_data, my_dit)
         self.next_win(win_g)
