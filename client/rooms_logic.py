@@ -30,11 +30,11 @@ class Room_req():
         res = self.clnt.recv(3).decode()
         if res[2] == 's':
             s = int(self.sc.recv(3).decode())
-            data = self.sc.recv(s).decode()
-            self.networks_data[room] = data[:2]
+            data = self.sc.recv(s).decode().split('#')+['{}']
+            self.networks_data[room_name] = [eval(i) for i in data[:2]]
         else:
             return 'f' + self.clnt.recv(128).decode()
-        return 's'+data
+        return 's',self.networks_data[room_name]
 
     def give_admin(self, room_name, user_ip):
         req = '13'+room_name+'#'+user_ip

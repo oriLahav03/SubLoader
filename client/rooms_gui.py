@@ -127,9 +127,6 @@ class Ui_RoomsWindow():
                 self.add_room(room_name, [self.my_ip])
             else:
                 QtWidgets.QMessageBox.critical(self.wig, "Create Room Fail", res[1:])
-            ROOMS[room_name] = list()  # TODO: add to rooms list
-            for key, value in ROOMS.items():
-                print(f'{key} {str(value)}')
 
     def open_join_room_dialog(self):
         """make the join room dialog page
@@ -139,17 +136,23 @@ class Ui_RoomsWindow():
         room_name, room_pass, cancel = window.setupUi()
         if cancel:
             pass
-        elif room_name in ROOMS.keys():
-            ROOMS[room_name].append(USER_NAME)  # TODO: get username and append to db room members list
-            for key, value in ROOMS.items():
-                print(f'{key} {str(value)}')
+        elif room_name in self.rooms.keys():
+            QtWidgets.QMessageBox.Critical(self.wig,"Wrong Parameters", "You'r already in this room")
         else:
-            msgBox = QtWidgets.QMessageBox()
-            msgBox.setIcon(QtWidgets.QMessageBox.Critical)
-            msgBox.setText("Invalid room name or password")
-            msgBox.setWindowTitle("Wrong Parameters")
-            msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msgBox.exec()
+            res = self.mng.logic.room_req.join_new_room(room_name, room_pass)
+            if res == 's':
+                r, room_mems = self.mng.logic.room_req.get_room_data(room_name)
+                QtWidgets.QMessageBox.information(self.wig, "Joined Room", room_name)
+                self.rooms.append(room_name)
+                self.add_room(room_name, room_mems)
+
+            else:
+                msgBox = QtWidgets.QMessageBox()
+                msgBox.setIcon(QtWidgets.QMessageBox.Critical)
+                msgBox.setText(res[1:])
+                msgBox.setWindowTitle("Fail Join Room")
+                msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                msgBox.exec_()
 
     def __build_rooms_data(self, rooms_data):
         """convert the data from the logic that came in dict 
@@ -170,7 +173,11 @@ class Ui_RoomsWindow():
         """update the rooms view if a room added or delted
         use only after update the room list data
         """
-
+        #clear the rooms spot
+        if self.verticalLayout_2.count():
+            del self.verticalLayout_2
+            self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
+            self.verticalLayout_2.setObjectName("verticalLayout_2")
         for room_name, members in self.rooms.items():
             self.add_room(room_name, members)
 
@@ -187,7 +194,7 @@ class Ui_RoomsWindow():
         Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
         room.adjustSize()
         self.verticalLayout_2.addWidget(room)
-        self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
+        #self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
 
 if __name__ == "__main__":
     import sys
