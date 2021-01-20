@@ -30,7 +30,7 @@ class Ui_RoomsWindow():
         self.wig = MainWindow
         self.wig.setObjectName("MainWindow")
         self.wig.setFixedSize(425, 500)
-        self.my_ip = user_ip.split(',')[1]
+        self.my_ip = user_ip.split(' - ')[1]
 
         # QtWidgets Setups
         self.central_widget = QtWidgets.QWidget(self.wig)
@@ -194,7 +194,7 @@ class Ui_RoomsWindow():
         Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
         room.adjustSize()
         self.verticalLayout_2.addWidget(room)
-        #self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
+        self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
 
 if __name__ == "__main__":
     import sys
