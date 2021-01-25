@@ -15,19 +15,44 @@ ips = ["127.0.0.1", "168.192.1.1", "168.192.1.5", "80.75.12.212"]
 
 class Proxy():
     def __init__(self, data):
+        self.gate_con = socket.socket()
         self.cln_dt = data
         self.thrd_conn = []
         print("start:")
-        sniff(lfilter=self.out_routing, prn=self.new_con_o)
+        sniff(lfilter=self.out_routing, prn=self.new_con_o, iface="SubNet")
         print("end!")
 
     def out_routing(self, p):
         global my_vir_ip
         global ips
-        if IP in p and TCP in p:
-            return p[TCP].flags=='S' and p[IP].dst in ips 
+        if TCP in p or ICMP in p:
+            return p[IP].dst in ips 
         else:
             return False
+
+    def send_pkt_to_ga(self, p):
+        """
+        send the packet to the gateway (server)
+        p: the packet from the sniff
+        """
+        # TODO encrypt the raw packet
+        #proto 4 bytes of size: src_vir_ip-dst_vir_ip:the bytes of crypted packet
+        raw_pkt = eval(str(p)) #may wont need eval
+        headers = (p[IP].src+'-'+p[IP].dst+':').encode()
+        size = str(len(headers+raw_pkt)).rjust(4,'0')
+        vpn_p = size.encode()+headers+raw_pkt
+        self.gate_con.sendall(vpn_p)
+
+    def send_pkt_to_net(self, p_dt):
+        """
+        get a vpn packet take out the original packet and send it
+        to the network
+        p_dt: vpn packet wuth data of the origin packet
+        """
+        decry_p = p_dt # TODO decrpt the packet
+        pkt = Ether(decry_p)
+        sendp(pkt,iface="SubNet")
+
 
     def in_routing(self, p):
         global my_vir_ip
