@@ -10,55 +10,58 @@ statuses = {
 }
 server_conn = ("127.0.0.1",10000)
 
-my_vir_ip = "127.0.0.1"
-ips = ["127.0.0.1", "168.192.1.1", "168.192.1.5", "80.75.12.212"]
+my_vir_ip = "25.200.0.10"
+ips = ["25.200.0.10", "25.200.0.100"]
 
 class Proxy():
     def __init__(self, data):
         self.gate_con = socket.socket()
-        self.cln_dt = data
+        self.room_s_mems = data
+        self.prv_addr = (get_if_hwaddr(conf.iface), get_if_addr(conf.iface))
         self.thrd_conn = []
-        print("start:")
-        sniff(lfilter=self.out_routing, prn=self.new_con_o, iface="SubNet")
-        print("end!")
 
+    def pkt_routing(self, ifc=None): #thread
+        print("start:")
+        sniff(lfilter=self.out_routing, filter="tcp or icmp", prn=self.send_pkt_to_ga, iface=ifc)
+        print("end!")
+    
+    def open_proxy_con(self):
+        self.gate_con.connect((server_conn))
+        self.gate_con.sendall(b'p')
+        self.gate_con.sendall(str(len()))
+        
     def out_routing(self, p):
         global my_vir_ip
         global ips
-        if TCP in p or ICMP in p:
-            return p[IP].dst in ips 
-        else:
-            return False
+        return p[IP].dst in ips 
+
 
     def send_pkt_to_ga(self, p):
         """
         send the packet to the gateway (server)
         p: the packet from the sniff
         """
+        p[ip].src = my_vir_ip
         # TODO encrypt the raw packet
-        #proto 4 bytes of size: src_vir_ip-dst_vir_ip:the bytes of crypted packet
-        raw_pkt = eval(str(p)) #may wont need eval
+        #protocol send to gateaway: 4_bytes_of_size src_vir_ip-dst_vir_ip:the bytes of encrypted packet
+        raw_pkt = str(p).encode()
         headers = (p[IP].src+'-'+p[IP].dst+':').encode()
         size = str(len(headers+raw_pkt)).rjust(4,'0')
         vpn_p = size.encode()+headers+raw_pkt
         self.gate_con.sendall(vpn_p)
 
-    def send_pkt_to_net(self, p_dt):
+    def send_pkt_to_net(self, p_dt, ifc=None):
         """
         get a vpn packet take out the original packet and send it
         to the network
         p_dt: vpn packet wuth data of the origin packet
+        ifc: specify the interface to send the packet
         """
         decry_p = p_dt # TODO decrpt the packet
         pkt = Ether(decry_p)
-        sendp(pkt,iface="SubNet")
-
-
-    def in_routing(self, p):
-        global my_vir_ip
-        global ips
-        if IP in p:
-            return p[IP].dst == my_vir_ip or p[TCP].sport == 10000
+        pkt[Ether].dst = self.prv_addr[0]
+        pkt[IP].dst = self.prv_addr[1]
+        sendp(pkt,iface=ifc)
 
     def port_taken(self, port):
         for c in self.thrd_conn:
