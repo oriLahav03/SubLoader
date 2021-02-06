@@ -1,4 +1,5 @@
 from vpn_manager import *
+import socket
 import random
 from threading import *
 
@@ -104,7 +105,7 @@ class Gateway():
         self.prx_sc.bind(proxy_addr)
         self.prx_sc.listen(10)
 
-    def rout(self, v_ip , sock):
+    def rout(self, v_ip , sock): #thread
         """routing the traffic from one client to the right dst
 
         Args:
@@ -116,17 +117,34 @@ class Gateway():
         self.routing[v_ip] = (sock, sc_lock)
         self.rout_l.release()
         while True:
-            #Get packet to send
             sc_lock.acquire()
-            s = int(sock.recv(4).decode())
-            headers, packet = sock.recv(s).decode().split(":", 1)
-            headers = headers.split("-")
-            sc_lock.release()
-            #send the packet to the dst
-            self.rout_l.acquire()
-            self.routing[headers[dst_ip]][lock_indx].acquire()
-            self.routing[headers[dst_ip]][sock_indx].sendall(packet.encode())
-            self.routing[headers[dst_ip]][lock_indx].release()
-            self.rout_l.release()
-           
+            sock.settimeout(3)
+            try:
+                #Get packet to send
+                s = int(sock.recv(4).decode())
+                headers, packet = sock.recv(s).decode().split(":", 1)
+                headers = headers.split("-")
+                sc_lock.release()
+            except socket.timeout:
+                sc_lock.release() #didn't get any packet
+            except socket.error as se:
+                break
+            else:
+                #send the packet to the dst
+                s = str(len(packet)).rjust(4,'0')
+                msg = s.encode()+packet.encode()
+                self.rout_l.acquire()                              #get into the routing lock
+                try:
+                    self.routing[headers[dst_ip]][lock_indx].acquire() #get into the socket lock
+                    self.routing[headers[dst_ip]][sock_indx].sendall()
+                    self.routing[headers[dst_ip]][lock_indx].release()
+                except KeyError: #user with that virtual ip not found
+                    print(headers[dst_ip]+" virtual ip not found")
+                except Exception as e:
+                    print(e)
+                self.rout_l.release()
+        #out
+        self.rout_l.acquire()
+        del self.routing[v_ip]
+        self.rout_l.release()       
 
