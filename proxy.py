@@ -118,8 +118,8 @@ class Gateway():
         self.routing[v_ip] = (sock, sc_lock)
         self.rout_l.release()
         while True:
-            sc_lock.acquire()
-            sock.settimeout(3)
+            #sc_lock.acquire()
+            sock.settimeout(1.5)
             try:
                 #Get packet to send
                 s = int(sock.recv(4).decode())
@@ -127,25 +127,32 @@ class Gateway():
                 headers = headers.split("-")
                 sc_lock.release()
             except socket.timeout:
-                sc_lock.release() #didn't get any packet
+                #sc_lock.release() #didn't get any packet
+                print("dont get packet")
             except socket.error as se:
                 break
             else:
                 #send the packet to the dst
-                s = str(len(packet)).rjust(4,'0')
-                msg = s.encode()+packet.encode()
-                self.rout_l.acquire()                              #get into the routing lock
                 try:
-                    self.routing[headers[dst_ip]][lock_indx].acquire() #get into the socket lock
-                    self.routing[headers[dst_ip]][sock_indx].sendall()
-                    self.routing[headers[dst_ip]][lock_indx].release()
+                    self.rout_l.acquire() #get into the routing lock
+                    target = self.routing[headers[dst_ip]]
+                    self.rout_l.release()
                 except KeyError: #user with that virtual ip not found
                     print(headers[dst_ip]+" virtual ip not found")
-                except Exception as e:
-                    print(e)
-                self.rout_l.release()
+                    self.rout_l.release()
+                else:
+                    s = str(len(packet)).rjust(4,'0')
+                    msg = s.encode()+packet.encode()
+                    target[lock_indx].acquire() #get into the socket lock
+                    try:
+                        target[sock_indx].sendall(msg)
+                    except socket.error as e:
+                        print("can't reach target")
+                    except Exception as e:
+                        print(e)
+                    target[lock_indx].release()
         #out
         self.rout_l.acquire()
-        del self.routing[v_ip]
+        del self.routing [v_ip]
         self.rout_l.release()       
 
