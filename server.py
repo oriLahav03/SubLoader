@@ -13,7 +13,7 @@ class Server:
         self.Thread_count = 0
         self.clients_list = {}
         self.gdb = db  # db
-        self.proxy = Proxy(self.clients_list, self.client_lock)
+        self.proxy = Gateway()
         self.ServerSocket = socket.socket()  # main socket
         try:
             self.ServerSocket.bind((host, port))
@@ -88,7 +88,7 @@ class Server:
             if con_type == 'a':              #a for our app connection
                 start_new_thread(self.threaded_client, (Client, address))
             elif con_type == 'p':            #p for proxy connection
-                start_new_thread(self.proxy.new_con, (Client, address))
+                start_new_thread(self.proxy.rout, (Client,))
             else:
                 Client.sendall(b'00not chose type of connection')
                 Client.close()

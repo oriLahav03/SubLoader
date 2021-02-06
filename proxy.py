@@ -105,7 +105,7 @@ class Gateway():
         self.prx_sc.bind(proxy_addr)
         self.prx_sc.listen(10)
 
-    def rout(self, v_ip , sock): #thread
+    def rout(self, sock): #thread
         """routing the traffic from one client to the right dst
 
         Args:
@@ -113,6 +113,7 @@ class Gateway():
             sock (socket): the proxy socket for the communication
         """
         sc_lock = Lock()
+        v_ip = sock.recv(int(sock.recv(2).decode())).decode()
         self.rout_l.acquire()
         self.routing[v_ip] = (sock, sc_lock)
         self.rout_l.release()
