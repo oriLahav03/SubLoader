@@ -146,6 +146,7 @@ class Gateway():
                     target[lock_indx].acquire() #get into the socket lock
                     try:
                         target[sock_indx].sendall(msg)
+                        print(headers[0], "->" + headers[1])
                     except socket.error as e:
                         print("can't reach target")
                     except Exception as e:

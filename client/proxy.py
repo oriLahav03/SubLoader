@@ -8,7 +8,7 @@ statuses = {
     2:"1+server conn",
     3:"only server conn"
 }
-server_conn = ("127.0.0.1",10000)
+server_conn = ("ec2-52-210-76-129.eu-west-1.compute.amazonaws.com",10000)
 
 my_vir_ip = "25.200.0.10"
 ips = ["25.200.0.11", "25.200.0.100","25.200.0.10"]
@@ -28,9 +28,13 @@ class Proxy():
         self.gate_con.sendall(open_msg)
         #start recive routed packets from server
         while True:
-            size = int(self.gate_con.recv(4).decode())
-            pkt = self.gate_con.recv(size).decode()
-            self.send_pkt_to_net(pkt)
+            try:
+                size = int(self.gate_con.recv(4).decode())
+                pkt = self.gate_con.recv(size).decode()
+                self.send_pkt_to_net(pkt)
+            except Exception:
+                break
+            
         
     def pkt_routing(self, ifc=None): #thread
         print("start:")
@@ -57,6 +61,8 @@ class Proxy():
         headers = (p[IP].src+'-'+p[IP].dst+':').encode()
         size = str(len(headers+raw_pkt)).rjust(4,'0')
         vpn_p = size.encode()+headers+raw_pkt
+        print("catch packet to: "+p[IP].dst)
+        print(p.summary())
         self.gate_con.sendall(vpn_p)
 
     def send_pkt_to_net(self, p_dt, ifc=None):
@@ -68,6 +74,8 @@ class Proxy():
         """
         decry_p = p_dt # TODO decrpt the packet
         pkt = Ether(eval(decry_p))
+        print("get packet from: "+pkt[IP].src)
+        print(pkt.summary())
         pkt[Ether].dst = self.prv_addr[0]
         pkt[IP].dst = self.prv_addr[1]
         sendp(pkt,iface=ifc)
