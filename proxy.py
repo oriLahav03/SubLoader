@@ -117,15 +117,15 @@ class Gateway():
         self.rout_l.acquire()
         self.routing[v_ip] = (sock, sc_lock)
         self.rout_l.release()
+        sock.settimeout(0.5)
         while True:
             #sc_lock.acquire()
-            sock.settimeout(1.5)
             try:
                 #Get packet to send
                 s = int(sock.recv(4).decode())
                 headers, packet = sock.recv(s).decode().split(":", 1)
                 headers = headers.split("-")
-                sc_lock.release()
+                #sc_lock.release()
             except socket.timeout:
                 #sc_lock.release() #didn't get any packet
                 print("dont get packet")

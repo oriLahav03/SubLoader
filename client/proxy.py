@@ -11,7 +11,7 @@ statuses = {
 server_conn = ("127.0.0.1",10000)
 
 my_vir_ip = "25.200.0.10"
-ips = ["25.200.0.11", "25.200.0.100"]
+ips = ["25.200.0.11", "25.200.0.100","25.200.0.10"]
 
 class Proxy():
     def __init__(self, data):
@@ -19,7 +19,8 @@ class Proxy():
         self.sc_lock = Lock()
         self.room_s_mems = data
         self.prv_addr = (get_if_hwaddr(conf.iface), get_if_addr(conf.iface))
-        self.thrd_conn = []
+        self.thrd_l = [Thread(target=self.open_proxy_con),Thread(target=self.pkt_routing, args=(None,))]
+
 
     def open_proxy_con(self):
         self.gate_con.connect((server_conn))
@@ -39,14 +40,16 @@ class Proxy():
     def out_routing(self, p):
         global my_vir_ip
         global ips
-        return p[IP].dst in ips 
+        if IP in p:
+         return p[IP].dst in ips
+        return False 
 
     def send_pkt_to_ga(self, p):
         """
         send the packet to the gateway (server)
         p: the packet from the sniff
         """
-        p[ip].src = my_vir_ip
+        p[IP].src = my_vir_ip
         # TODO encrypt the raw packet
         # p = encrypt_func(str(p)) return str of encrypted packet
         #protocol send to gateaway: 4_bytes_of_size src_vir_ip-dst_vir_ip:the bytes of encrypted packet
@@ -101,6 +104,10 @@ class Proxy():
             new_app.connect_app()
             new_app.start()
             self.thrd_conn.append(new_app)
+    
+    def start_threads(self):
+        for t in self.thrd_l:
+            t.start()
 
 
 
@@ -148,3 +155,5 @@ class ThirdPartyConnection(Thread):
 
 if __name__ == '__main__':
     prx = Proxy(" ")
+    prx.start_threads()
+    
