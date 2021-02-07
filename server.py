@@ -1,6 +1,6 @@
-import socket
 from _thread import *
 from projDB import *
+from proxy import *
 
 host = '127.0.0.1'
 port = 10000
@@ -11,8 +11,9 @@ class Server:
         self.sock_lock = allocate_lock()
         self.client_lock = allocate_lock()
         self.Thread_count = 0
-        self.clients_list = []
+        self.clients_list = {}
         self.gdb = db  # db
+        self.proxy = Gateway()
         self.ServerSocket = socket.socket()  # main socket
         try:
             self.ServerSocket.bind((host, port))
@@ -33,11 +34,11 @@ class Server:
         s_up = Singup(req[0], req[1], req[2], req[3])
         res = self.gdb.singup(s_up)
         if res[0]:
-            cln_sc.sendall(('01s' + s_up.email + res[1]).encode())
-            return False
+            cln_sc.sendall(('01s' + s_up.email+ '!' + res[1]).encode())
+            return False,(s_up.email,s_up.username,res[1],[], res[2])
         else:
             cln_sc.sendall(('01f' + res[1]).encode())
-            return True
+            return True,0
 
     def handle_login(self, cln_sc, req: list):
         """
@@ -49,23 +50,12 @@ class Server:
         l_in = Login(req[0], req[1])
         res = self.gdb.login(l_in)
         if res[0]:
-            user_info = res[1][0] + '!' + res[1][1]
-            cln_sc.sendall(('01s' + user_info).encode())
-            return False
+            user_info = res[1][0] + '!' + res[1][1] +'!'+ str(res[1][2])
+            cln_sc.sendall(('02s'+ str(len(user_info)).rjust(3,'0') + user_info).encode())
+            return False,(l_in.email, res[1][0], res[1][1], res[1][2],res[1][0])
         else:
-            cln_sc.sendall(('01f' + res[1]).encode())
-            return True
-
-    def accept_clients(self):
-        """
-        accept clients.
-        :return: None.
-        """
-        while True:
-            Client, address = self.ServerSocket.accept()
-            print('Connected to: ' + address[0] + ':' + str(address[1]))
-            start_new_thread(self.threaded_client, (Client, address))
-            print('Thread Number: ' + str(self.Thread_count))
+            cln_sc.sendall(('02f' + res[1]).encode())
+            return True,0
 
     def new_auth(self, sc: socket.socket):
         """
@@ -74,8 +64,8 @@ class Server:
         :return: user info.
         """
         req_msg = 0
-        out = True
-        while out:
+        out = (True,)
+        while out[0]:
             code = sc.recv(2).decode()
             req_msg = sc.recv(256).decode()
             req = req_msg.split('!')
@@ -85,7 +75,23 @@ class Server:
                 out = self.handle_login(sc, req)
             else:
                 sc.send(b'00unknown code')
-        return req_msg[0]
+        return req[1]
+
+    def accept_clients(self):
+        """
+        accept clients.
+        :return: None.
+        """
+        while True:
+            Client, address = self.ServerSocket.accept()
+            con_type = Client.recv(1).decode()
+            if con_type == 'a':              #a for our app connection
+                start_new_thread(self.threaded_client, (Client, address))
+            elif con_type == 'p':            #p for proxy connection
+                start_new_thread(self.proxy.rout, (Client,))
+            else:
+                Client.sendall(b'00not chose type of connection')
+                Client.close()
 
     def send_to_all(self, from_cln, msg: str):
         """
@@ -107,35 +113,37 @@ class Server:
         :param address: the client address.
         :return: None.
         """
-        name = ''
         try:
-            name = self.new_auth(sc)
+            usr_data = self.new_auth(sc)
             is_connected = True
-        except:
+        except Exception as e:
+            print(str(e))
             is_connected = False
 
-        if is_connected:
+        if is_connected: 
             self.client_lock.acquire()
-            self.clients_list.append((sc, address, name))
+            self.clients_list[(sc, address)] = Client(sc, address, usr_data[1], usr_data[0],usr_data[2],usr_data[3], usr_data[4])
             self.Thread_count += 1
             self.client_lock.release()
+            print(usr_data[1] + ' connected from '+ address)
+            print('client-' + str(self.Thread_count))
 
             while True:
                 try:
                     data = sc.recv(512).decode()
                     if not data or data == 'q':
                         break
-                    msg = "->" + name + ': ' + data
+                    msg = "->" + usr_data[1] + ': ' + data
                     self.client_lock.acquire()
                     self.send_to_all(address, msg)
                     self.client_lock.release()
                 except:
                     break
-            print('client: "' + name + '" disconnected')
-            self.send_to_all(address, name + ' logout')
+            print('client: "' + usr_data[1] + '" disconnected')
+            self.send_to_all(address, usr_data[1] + ' logout')
             self.client_lock.acquire()
             self.Thread_count -= 1
-            self.clients_list.remove((sc, address, name))
+            del self.clients_list[(sc, address)] # remove client
             self.client_lock.release()
             sc.close()
 

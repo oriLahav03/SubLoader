@@ -1,4 +1,4 @@
-from costumExeptions import *
+from custom_exeptions import *
 
 
 def catch_exception_get_db(schema, error):
