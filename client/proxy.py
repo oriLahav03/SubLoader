@@ -18,9 +18,13 @@ class Proxy():
         self.gate_con = socket.socket()
         self.sc_lock = Lock()
         self.room_s_mems = data
-        self.prv_addr = (get_if_hwaddr(conf.iface), get_if_addr(conf.iface))
+        self.prv_addr = (get_if_hwaddr(conf.iface), get_if_addr(conf.iface), self.get_router_mac())
         self.thrd_l = [Thread(target=self.open_proxy_con),Thread(target=self.pkt_routing, args=(None,))]
 
+    def get_router_mac(self):
+        net_data = conf.route.route("0.0.0.0")
+        res, un = sr(ARP(op="who-has", psrc=net_data[1], pdst=net_data[2]))
+        return res[0][1][ARP].hwsrc
 
     def open_proxy_con(self):
         self.gate_con.connect((server_conn))
@@ -36,9 +40,9 @@ class Proxy():
                 break
             
         
-    def pkt_routing(self, ifc=None): #thread
+    def pkt_routing(self, ifc=conf.iface): #thread
         print("start:")
-        sniff(lfilter=self.out_routing, filter="tcp or icmp", prn=self.send_pkt_to_ga, iface=ifc)
+        sniff(lfilter=self.out_routing, filter="tcp or icmp or arp", prn=self.send_pkt_to_ga, iface=ifc)
         print("end!")
     
     def out_routing(self, p):
@@ -63,9 +67,12 @@ class Proxy():
         vpn_p = size.encode()+headers+raw_pkt
         print("catch packet to: "+p[IP].dst)
         print(p.summary())
-        self.gate_con.sendall(vpn_p)
+        try:
+            self.gate_con.sendall(vpn_p)
+        except:
+            exit()
 
-    def send_pkt_to_net(self, p_dt, ifc=None):
+    def send_pkt_to_net(self, p_dt, ifc=conf.iface):
         """
         get a vpn packet take out the original packet and send it
         to the network
@@ -75,9 +82,10 @@ class Proxy():
         decry_p = p_dt # TODO decrpt the packet
         pkt = Ether(eval(decry_p))
         print("get packet from: "+pkt[IP].src)
-        print(pkt.summary())
+        print("before",pkt.summary())
         pkt[Ether].dst = self.prv_addr[0]
         pkt[IP].dst = self.prv_addr[1]
+        print("after", pkt.show())
         sendp(pkt,iface=ifc)
 
     def port_taken(self, port):
