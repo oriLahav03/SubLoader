@@ -26,6 +26,11 @@ class Proxy():
         res, un = sr(ARP(op="who-has", psrc=net_data[1], pdst=net_data[2]))
         return res[0][1][ARP].hwsrc
 
+    def arp_res(self,arp_p):
+        p = Ether(src="ac:f5:5a:b3:82:d5", dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=arp_p.psrc, psrc=arp_p.pdst, hwsrc="ac:f5:5a:b3:82:d5",op="is-at")
+        srp1(p, iface="SubNet",verbose= False)
+
+
     def open_proxy_con(self):
         self.gate_con.connect((server_conn))
         open_msg = b'p' + str(len(my_vir_ip)).encode() +my_vir_ip.encode()
@@ -49,7 +54,9 @@ class Proxy():
         global my_vir_ip
         global ips
         if IP in p:
-         return p[IP].dst in ips
+            return p[IP].dst in ips
+        if ARP in p and p[ARP].op == "who-has":
+            self.arp_res(p[ARP])
         return False 
 
     def send_pkt_to_ga(self, p):
