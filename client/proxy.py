@@ -14,16 +14,21 @@ my_vir_ip = "25.200.0.10"
 ips = ["25.200.0.11", "25.200.0.100","25.200.0.10"]
 
 class Proxy():
-    def __init__(self, data):
+    def __init__(self, my_vir_ip, rooms_mems):
+        self.my_vir_ip = my_vir_ip
+        self.ips = rooms_mems
         self.gate_con = socket.socket()
         self.sc_lock = Lock()
         self.room_s_mems = data
         self.prv_addr = (get_if_hwaddr(conf.iface), get_if_addr(conf.iface), self.get_router_mac())
-        self.thrd_l = [Thread(target=self.open_proxy_con),Thread(target=self.pkt_routing, args=(None,))]
+        self.thrd_l = [Thread(target=self.open_proxy_con, args=(my_vir_ip,)),Thread(target=self.pkt_routing, args=(None,))]
 
     def get_router_mac(self):
         net_data = conf.route.route("0.0.0.0")
-        res, un = sr(ARP(op="who-has", psrc=net_data[1], pdst=net_data[2]))
+        try:
+            res, un = sr(ARP(op="who-has", psrc=net_data[1], pdst=net_data[2]), timeout=100)
+        except TimeoutError:
+            return None
         return res[0][1][ARP].hwsrc
 
     def arp_res(self,arp_p):
@@ -31,7 +36,7 @@ class Proxy():
         srp1(p, iface="SubNet",verbose= False)
 
 
-    def open_proxy_con(self):
+    def open_proxy_con(self, my_vir_ip):
         self.gate_con.connect((server_conn))
         open_msg = b'p' + str(len(my_vir_ip)).encode() +my_vir_ip.encode()
         self.gate_con.sendall(open_msg)
@@ -177,6 +182,6 @@ class ThirdPartyConnection(Thread):
         print("my new sock with app-> " + self.app_sock_c)
 
 if __name__ == '__main__':
-    prx = Proxy(" ")
+    prx = Proxy(my_vir_ip, ips)
     prx.start_threads()
     
