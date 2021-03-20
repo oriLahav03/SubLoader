@@ -1,8 +1,13 @@
 from vpn_manager import *
+import socket
 import random
 from threading import *
 
-
+proxy_addr = ("127.0.0.1", 1900)
+src_ip = 0
+dst_ip = 1
+sock_indx = 0
+lock_indx = 1
 # protocols: first the server get 'p' msg then pass the connection to the proxy
 #41size(2bytes)ip,port <= this addr belong to the target client -> server app
 #                     fully new connect- need to open socket in other client
@@ -91,3 +96,64 @@ class Proxy():
                 r.set_target_sk(to_sock, to_ad)
                 r.set_key()
                 r.start()
+
+class Gateway():
+    def __init__(self):
+        self.routing = {} # the virtual routing table via vir ips {ip:sock}
+        self.rout_l = Lock()
+        self.prx_sc = socket.socket()
+        self.prx_sc.bind(proxy_addr)
+        self.prx_sc.listen(10)
+
+    def rout(self, sock): #thread
+        """routing the traffic from one client to the right dst
+
+        Args:
+            v_ip (str): theirtual ip that need to add to the routing
+            sock (socket): the proxy socket for the communication
+        """
+        sc_lock = Lock()
+        v_ip = sock.recv(int(sock.recv(2).decode())).decode()
+        self.rout_l.acquire()
+        self.routing[v_ip] = (sock, sc_lock)
+        self.rout_l.release()
+        sock.settimeout(0.5)
+        while True:
+            #sc_lock.acquire()
+            try:
+                #Get packet to send
+                s = int(sock.recv(4).decode())
+                headers, packet = sock.recv(s).decode().split(":", 1)
+                headers = headers.split("-")
+                #sc_lock.release()
+            except socket.timeout:
+                #sc_lock.release() #didn't get any packet
+                print("dont get packet")
+            except socket.error as se:
+                break
+            else:
+                #send the packet to the dst
+                try:
+                    self.rout_l.acquire() #get into the routing lock
+                    target = self.routing[headers[dst_ip]]
+                    self.rout_l.release()
+                except KeyError: #user with that virtual ip not found
+                    print(headers[dst_ip]+" virtual ip not found")
+                    self.rout_l.release()
+                else:
+                    s = str(len(packet)).rjust(4,'0')
+                    msg = s.encode()+packet.encode()
+                    target[lock_indx].acquire() #get into the socket lock
+                    try:
+                        target[sock_indx].sendall(msg)
+                        print(headers[0], "->" + headers[1])
+                    except socket.error as e:
+                        print("can't reach target")
+                    except Exception as e:
+                        print(e)
+                    target[lock_indx].release()
+        #out
+        self.rout_l.acquire()
+        del self.routing [v_ip]
+        self.rout_l.release()       
+
