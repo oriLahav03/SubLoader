@@ -122,7 +122,7 @@ class Ui_RoomsWindow():
         if room_name != '' and not cancel:
             res = self.mng.logic.room_req.new_room(room_name, room_pass, True, self.my_ip)
             if res == 's':
-                QtWidgets.QMessageBox.information(self.wig, "New Room Created", "")
+                QtWidgets.QMessageBox.information(self.wig, "New Room Created", room_name)
                 self.rooms[room_name] = [self.my_ip]
                 self.add_room(room_name, [self.my_ip])
                 self.mng.logic.joined_new_room(room_name)

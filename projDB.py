@@ -184,7 +184,7 @@ class Google_DB:
         if self.__is_room_exists(room.name):
             raise name_taken(room.name, 'room')
         room_data = {"password": room.password, "admin": room.admin, "users": [],
-                     "settings": {"new_users": "true", "need_pass": room.need_password, "accept_manual": "false"}}
+                     "settings": {"new_users": "True", "need_pass": room.need_password, "accept_manual": "false"}}
         catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
         self.__add_room_to_user_rooms(room.admin, room.name)
 
@@ -376,7 +376,7 @@ class Room_manager:
         """
         get room data from db and send
         """
-        print('\ngive room from db')
+        print('give room %s from db' % (data[0]))
         try:
             users, sets = self.db.get_room_data(data[0], vir_ip)
             msg = str(users)+ '#' +str(sets)
