@@ -174,6 +174,10 @@ class Client_logic:
     def init_room_req(self):
         self.room_req = Room_req(self.sc)
 
+    def joined_new_room(self, r_name):
+        self.my_networks.append(r_name)
+        self.__get_rooms_data()
+
 if __name__ == "__main__":
     clint = Client_logic()
     clint.make_auth()

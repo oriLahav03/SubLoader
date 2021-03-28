@@ -4,7 +4,7 @@ class Room_req():
 
     def new_room(self, name, paswrd, need_pass, vir_ip):
         room_data = '#'.join([name,vir_ip,paswrd,str(need_pass)])
-        req = '10'+len(room_data)+room_data
+        req = '10'+str(len(room_data)).rjust(3,'0')+room_data
         self.clnt.send(req.encode())
 
         res = self.clnt.recv(512).decode()

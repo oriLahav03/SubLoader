@@ -65,6 +65,13 @@ class Google_DB:
         else:  
             raise get_userinfo_err(child, eql)
 
+    def __add_room_to_user_rooms(self, user, room_n):
+        user_if = self.__get_userinfo_by('ip', user)
+        user_rooms = user_if[1]['networks']
+        user_rooms.append(room_n)
+        is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
+            {'networks': user_rooms}), "cant add room from list")
+
     def singup(self, s_up: Singup):
         if s_up.password == s_up.conf_pw:
             try:
@@ -179,6 +186,7 @@ class Google_DB:
         room_data = {"password": room.password, "admin": room.admin, "users": [],
                      "settings": {"new_users": "true", "need_pass": room.need_password, "accept_manual": "false"}}
         catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
+        self.__add_room_to_user_rooms(room.admin, room.name)
 
     def join_room(self, room_name, new_user_ip, password=''):
         """
@@ -191,12 +199,8 @@ class Google_DB:
                 user_list.append(new_user_ip)
                 is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                     {"users": user_list}), "can't add user " + new_user_ip + " to room " + room_name)
-
-                user_if = self.__get_userinfo_by('ip', new_user_ip)
-                user_rooms = user_if[1]['networks']
-                user_rooms.append(room_name)
-                is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
-                    {'networks': user_rooms}), "cant add room from list")
+                
+                self.__add_room_to_user_rooms(new_user_ip, room_name)
             else:
                 raise join_room_err(room_name)
         else:

@@ -123,8 +123,9 @@ class Ui_RoomsWindow():
             res = self.mng.logic.room_req.new_room(room_name, room_pass, True, self.my_ip)
             if res == 's':
                 QtWidgets.QMessageBox.information(self.wig, "New Room Created", "")
-                self.rooms.append(room_name)
+                self.rooms[room_name] = [self.my_ip]
                 self.add_room(room_name, [self.my_ip])
+                self.mng.logic.joined_new_room(room_name)
             else:
                 QtWidgets.QMessageBox.critical(self.wig, "Create Room Fail", res[1:])
 
@@ -143,9 +144,9 @@ class Ui_RoomsWindow():
             if res == 's':
                 r, room_mems = self.mng.logic.room_req.get_room_data(room_name)
                 QtWidgets.QMessageBox.information(self.wig, "Joined Room", room_name)
-                self.rooms.append(room_name)
+                self.rooms[room_name] = room_mems
                 self.add_room(room_name, room_mems)
-
+                self.mng.logic.joined_new_room(room_name)
             else:
                 msgBox = QtWidgets.QMessageBox()
                 msgBox.setIcon(QtWidgets.QMessageBox.Critical)

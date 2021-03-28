@@ -128,8 +128,8 @@ class Gateway():
                 headers = headers.split("-")
                 #sc_lock.release()
             except socket.timeout:
-                #sc_lock.release() #didn't get any packet
-                print("dont get packet")
+                #didn't get any packet
+                continue #print("dont get packet")
             except socket.error as se:
                 break
             else:
@@ -157,5 +157,3 @@ class Gateway():
         self.rout_l.acquire()
         del self.routing [v_ip]
         self.rout_l.release()
-        print(v_ip, 'out')       
-
