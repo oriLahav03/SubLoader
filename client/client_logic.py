@@ -1,4 +1,5 @@
 import socket
+from c_proxy import *
 from _thread import *
 from client_err import *
 from rooms_logic import *
@@ -164,6 +165,12 @@ class Client_logic:
                 continue
             break
     
+    def init_proxy(self):
+        all_ips = []
+        for ips_l in self.networks_data.values():
+            all_ips+=ips_l[0]
+        self.prx = Proxy(self.vir_ip, all_ips)
+
     def init_room_req(self):
         self.room_req = Room_req(self.sc)
 

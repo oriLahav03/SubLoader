@@ -15,6 +15,7 @@ class Manager():
 
     def __move_to_rooms(self):
         self.logic.init_room_req()
+        self.logic.init_proxy()
         my_dit = self.logic.un +" - "+self.logic.vir_ip
         win_g = Ui_RoomsWindow(self)
         self.auth_mng.wig.close()
@@ -22,6 +23,7 @@ class Manager():
         self.next_win(win_g)
         self.auth_mng.win = win_g
         self.wintype = "main"
+        self.logic.prx.start_threads()
 
     def make_singup(self):
         try:

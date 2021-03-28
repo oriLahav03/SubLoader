@@ -8,10 +8,10 @@ statuses = {
     2:"1+server conn",
     3:"only server conn"
 }
-server_conn = ("ec2-52-210-76-129.eu-west-1.compute.amazonaws.com",10000)
+server_conn = ("127.0.0.1",10000)
 
-my_vir_ip = "25.200.0.10"
-ips = ["25.200.0.11", "25.200.0.100","25.200.0.10"]
+g_my_vir_ip = "25.200.0.10"
+g_ips = ["25.200.0.11", "25.200.0.100","25.200.0.10"]
 
 class Proxy():
     def __init__(self, my_vir_ip, rooms_mems):
@@ -19,17 +19,19 @@ class Proxy():
         self.ips = rooms_mems
         self.gate_con = socket.socket()
         self.sc_lock = Lock()
-        self.room_s_mems = data
         self.prv_addr = (get_if_hwaddr(conf.iface), get_if_addr(conf.iface), self.get_router_mac())
-        self.thrd_l = [Thread(target=self.open_proxy_con, args=(my_vir_ip,)),Thread(target=self.pkt_routing, args=(None,))]
+        self.thrd_l = [Thread(target=self.open_proxy_con, args=(my_vir_ip,)),Thread(target=self.pkt_routing)]
+        print('proxy initialized')
+
 
     def get_router_mac(self):
         net_data = conf.route.route("0.0.0.0")
         try:
-            res, un = sr(ARP(op="who-has", psrc=net_data[1], pdst=net_data[2]), timeout=100)
-        except TimeoutError:
+            res, un = sr(ARP(op="who-has", psrc=net_data[1], pdst=net_data[2]), timeout=3)
+            return res[0][1][ARP].hwsrc
+        except (TimeoutError, IndexError):
             return None
-        return res[0][1][ARP].hwsrc
+        
 
     def arp_res(self,arp_p):
         p = Ether(src="ac:f5:5a:b3:82:d5", dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=arp_p.psrc, psrc=arp_p.pdst, hwsrc="ac:f5:5a:b3:82:d5",op="is-at")
@@ -56,10 +58,8 @@ class Proxy():
         print("end!")
     
     def out_routing(self, p):
-        global my_vir_ip
-        global ips
         if IP in p:
-            return p[IP].dst in ips
+            return p[IP].dst in self.ips
         if ARP in p and p[ARP].op == "who-has":
             self.arp_res(p[ARP])
         return False 
@@ -69,7 +69,7 @@ class Proxy():
         send the packet to the gateway (server)
         p: the packet from the sniff
         """
-        p[IP].src = my_vir_ip
+        p[IP].src = self.my_vir_ip
         # TODO encrypt the raw packet
         # p = encrypt_func(str(p)) return str of encrypted packet
         #protocol send to gateaway: 4_bytes_of_size src_vir_ip-dst_vir_ip:the bytes of encrypted packet
@@ -97,7 +97,7 @@ class Proxy():
         print("before",pkt.summary())
         pkt[Ether].dst = self.prv_addr[0]
         pkt[IP].dst = self.prv_addr[1]
-        print("after", pkt.show())
+        print("after", pkt.summary())
         sendp(pkt,iface=ifc)
 
     def port_taken(self, port):
@@ -182,6 +182,6 @@ class ThirdPartyConnection(Thread):
         print("my new sock with app-> " + self.app_sock_c)
 
 if __name__ == '__main__':
-    prx = Proxy(my_vir_ip, ips)
+    prx = Proxy(g_my_vir_ip, g_ips)
     prx.start_threads()
     

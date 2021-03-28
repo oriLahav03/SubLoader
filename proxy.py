@@ -118,6 +118,7 @@ class Gateway():
         self.routing[v_ip] = (sock, sc_lock)
         self.rout_l.release()
         sock.settimeout(0.5)
+        print("new for ip:", v_ip)
         while True:
             #sc_lock.acquire()
             try:
@@ -155,5 +156,6 @@ class Gateway():
         #out
         self.rout_l.acquire()
         del self.routing [v_ip]
-        self.rout_l.release()       
+        self.rout_l.release()
+        print(v_ip, 'out')       
 
