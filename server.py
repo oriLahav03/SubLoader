@@ -141,7 +141,8 @@ class Server:
                     self.client_lock.acquire()
                     self.send_to_all(address, msg)
                     self.client_lock.release()
-                except:
+                except Exception as e:
+                    print(e)
                     break
             print('client: "' + usr_data[1] + '" disconnected')
             self.send_to_all(address, usr_data[1] + ' logout')

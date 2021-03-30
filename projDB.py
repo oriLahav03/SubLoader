@@ -284,7 +284,13 @@ class Google_DB:
         """
         val = self.__is_room_exists(room_name)
         if val:
-            user_list = val[room_name]['users'] + [val[room_name]['admin']]
+            user_list = []
+            try:
+                user_list += val[room_name]['users'] 
+            except KeyError as e:
+                pass
+            finally:
+                user_list += [val[room_name]['admin']]
             sets = val[room_name]['settings']
             if vir_ip not in user_list:
                 raise get_data_err('room', room_name, 'can\'t find room')
@@ -377,6 +383,7 @@ class Room_manager:
         get room data from db and send
         """
         print('give room %s from db' % (data[0]))
+        print(data)
         try:
             users, sets = self.db.get_room_data(data[0], vir_ip)
             msg = str(users)+ '#' +str(sets)
