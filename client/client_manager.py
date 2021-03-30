@@ -39,7 +39,7 @@ class Manager():
         
     def make_login(self):
         try:
-            args = ['yyy@gmail.com','000000i']#['ttt@gmail.com', '1234567']#self.auth_mng.win.get_labels()
+            args = self.auth_mng.win.get_labels()#['yyy@gmail.com','000000i']#['ttt@gmail.com', '1234567']
             res = self.logic.do_login(args[0], args[1])
             if res:
                 qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail', 'login unsuccessful \nusername or password incorrect')
@@ -56,8 +56,6 @@ class Manager():
      
     def start_gui(self):
         self.auth_mng.set_ui(self)
-        #self.make_login()
-        #self.make_singup()
         sys.exit(self.gui_app.exec_())
 
 if __name__ == '__main__':

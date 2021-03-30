@@ -187,7 +187,7 @@ class Google_DB:
         if self.__is_room_exists(room.name):
             raise name_taken(room.name, 'room')
         room_data = {"pass": room.password, "admin": room.admin, "users": [],
-                     "settings": {"new_users": "True", "need_pass": room.need_password, "accept_manual": "false"}}
+                     "settings": {"new_users": "True", "need_pass": room.need_password, "accept_manual": "False"}}
         catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
         self.__add_room_to_user_rooms(room.admin, room.name)
 
