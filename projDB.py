@@ -67,8 +67,11 @@ class Google_DB:
 
     def __add_room_to_user_rooms(self, user, room_n):
         user_if = self.__get_userinfo_by('ip', user)
-        user_rooms = user_if[1]['networks']
-        user_rooms.append(room_n)
+        try:
+            user_rooms = user_if[1]['networks']
+            user_rooms.append(room_n)
+        except KeyError as e:
+            user_rooms =[room_n]
         is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
             {'networks': user_rooms}), "cant add room from list")
 
@@ -183,7 +186,7 @@ class Google_DB:
         """
         if self.__is_room_exists(room.name):
             raise name_taken(room.name, 'room')
-        room_data = {"password": room.password, "admin": room.admin, "users": [],
+        room_data = {"pass": room.password, "admin": room.admin, "users": [],
                      "settings": {"new_users": "True", "need_pass": room.need_password, "accept_manual": "false"}}
         catch_exception_put_db(self.db.child("Networks").child(room.name).set(room_data), "error enter new room")
         self.__add_room_to_user_rooms(room.admin, room.name)
@@ -194,9 +197,12 @@ class Google_DB:
         """
         val = self.__is_room_exists(room_name)
         if val:
-            if self.__can_join_new_room(val[room_name], new_user_ip, password):
-                user_list = val[room_name]['users']
-                user_list.append(new_user_ip)
+            if self.__can_join_new_room(val[room_name], password):
+                try:
+                    user_list = val[room_name]['users']
+                    user_list.append(new_user_ip)
+                except KeyError as e:
+                    user_list = [new_user_ip]
                 is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
                     {"users": user_list}), "can't add user " + new_user_ip + " to room " + room_name)
                 
