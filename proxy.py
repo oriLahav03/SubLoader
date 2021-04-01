@@ -149,7 +149,7 @@ class Gateway:
                     print(headers[dst_ip] + " virtual ip not found")
                     self.rout_l.release()
                 else:
-                    en_packet = target[sec_indx].encrypt(de_packet)
+                    en_packet = target[sec_indx].encrypt(de_packet, target[sec_indx].client_private_key)
                     s = str(len(en_packet)).rjust(4, '0')
                     msg = s.encode() + en_packet
                     target[lock_indx].acquire()  # get into the socket lock

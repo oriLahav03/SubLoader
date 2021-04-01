@@ -15,14 +15,14 @@ class Security:
         self.private_key = self.get_key()
         self.client_private_key = ""
 
-    def encrypt(self, message):
+    def encrypt(self, message, key):
         """
         This function encrypt the message with a given key
         :param message: the message to encrypt
         :param key: the key to encrypt with
         :return: the encrypted message
         """
-        f = Fernet(self.client_private_key.encode())
+        f = Fernet(key)
         return f.encrypt(message)  # Encrypt the bytes. The returning object is of type bytes
 
     def decrypt(self, data=None):
@@ -61,10 +61,11 @@ class Security:
         :param connection: The connection
         :return: Nothing important
         """
+
         self.client_public_key = self.decrypt(connection.recv(2048)).decode()  # the client's public key
 
         # send the server private key encrypted by the client's public key
-        send_private_key = self.encrypt(self.private_key.encode())
+        send_private_key = self.encrypt(self.private_key.encode(), self.client_public_key)
 
         connection.sendall(send_private_key)
 
