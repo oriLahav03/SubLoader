@@ -109,7 +109,6 @@ class Gateway():
         """routing the traffic from one client to the right dst
 
         Args:
-            v_ip (str): theirtual ip that need to add to the routing
             sock (socket): the proxy socket for the communication
         """
         sc_lock = Lock()

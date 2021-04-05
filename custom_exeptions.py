@@ -92,6 +92,8 @@ class password_not_match(Exception):
         return 'password ' + self.pw + ' not match to ' + self.room
 
 class get_data_err(Exception):
+    """cant get the data that requested
+    """
     def __init__(self, of_what, name='', msg=''):
         super(get_data_err, self).__init__()
         self.what = of_what + name

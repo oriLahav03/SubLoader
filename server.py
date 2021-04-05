@@ -81,7 +81,7 @@ class Server:
 
     def accept_clients(self):
         """
-        accept clients.
+        accept clients for the app and the proxy
         :return: None.
         """
         while True:
@@ -149,6 +149,7 @@ class Server:
             self.client_lock.acquire()
             self.Thread_count -= 1
             del self.clients_list[(sc, address)] # remove client
+
             self.client_lock.release()
             sc.close()
 

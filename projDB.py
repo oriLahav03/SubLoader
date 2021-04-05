@@ -58,6 +58,18 @@ class Google_DB:
         self.auth = auth
 
     def __get_userinfo_by(self, child, eql):
+        """get the wanted user by value that provide
+
+        Args:
+            child (the type of the value): which value of the DB we get
+            eql (the value): a value of a user we want to get
+
+        Raises:
+            get_userinfo_err: if there is none user with that value
+
+        Returns:
+            [userinfo]: all the user information from the DB
+        """
         stats = catch_exception_get_db(self.db.child('Users').order_by_child(child).equal_to(eql).get().val(),
                                        "ERROR: can't get the stats")
         if stats:
@@ -66,6 +78,12 @@ class Google_DB:
             raise get_userinfo_err(child, eql)
 
     def __add_room_to_user_rooms(self, user, room_n):
+        """add the new room the user connected to his room list
+
+        Args:
+            user (ip of the user): to find the user
+            room_n (room name): the room name that the user joined
+        """
         user_if = self.__get_userinfo_by('ip', user)
         try:
             user_rooms = user_if[1]['networks']
@@ -76,6 +94,15 @@ class Google_DB:
             {'networks': user_rooms}), "cant add room from list")
 
     def singup(self, s_up: Singup):
+        """make singup new user
+
+        Args:
+            s_up (structure with info): all new user information
+
+        Returns:
+            [bool]: is succed
+            if yes also the info we have else the error
+        """
         if s_up.password == s_up.conf_pw:
             try:
                 new_user_data = self.auth.create_user_with_email_and_password(s_up.email,
@@ -97,6 +124,15 @@ class Google_DB:
             return False, "passwords not match!"
 
     def login(self, l_in: Login):
+        """login new client
+
+        Args:
+            l_in (structure with info): all new user informatio
+
+        Returns:
+            [bool]: is succed
+            if yes also the info we have else the error
+        """
         # login auth section
         try:
             token = self.auth.sign_in_with_email_and_password(l_in.email,
@@ -144,6 +180,9 @@ class Google_DB:
         """
         checking if the room exists by name
         if yes return it else return false
+
+        Args:
+            name : the name of the room
         """
         get = self.db.child("Networks").order_by_key().equal_to(name).get()
         # tget = self.db.child("Networks").child(name).get().val()['users'] after can give up on room_name var
@@ -168,8 +207,17 @@ class Google_DB:
             return False
 
     def is_room_admin(self, room_name, user_ip):
-        """
-        check if the user is the admin of the room
+        """check if the user is the admin of the room
+
+        Args:
+            room_name (str): name of the room
+            user_ip (str): the user virtual ip
+
+        Raises:
+            room_not_exist: not find a room with that name
+
+        Returns:
+            [bool]: [if admin or not]
         """
         val = self.__is_room_exists(room_name)
         if val:
@@ -181,8 +229,13 @@ class Google_DB:
             raise room_not_exist(room_name, 'can\'t find room ')
 
     def add_new_room(self, room):
-        """
-        Add new room to the DB 
+        """Add new room to the DB 
+
+        Args:
+            room (str): room name
+
+        Raises:
+            name_taken: if room already exists
         """
         if self.__is_room_exists(room.name):
             raise name_taken(room.name, 'room')
@@ -192,8 +245,16 @@ class Google_DB:
         self.__add_room_to_user_rooms(room.admin, room.name)
 
     def join_room(self, room_name, new_user_ip, password=''):
-        """
-        join to a new room 
+        """join to a new room 
+
+        Args:
+            room_name (str): room name
+            new_user_ip (str): the ip of the new user that joined
+            password (str, optional): password of the room. Defaults to ''.
+
+        Raises:
+            join_room_err: cant join room error
+            room_not_exist: not find a room with that name
         """
         val = self.__is_room_exists(room_name)
         if val:
@@ -213,9 +274,15 @@ class Google_DB:
             raise room_not_exist(room_name)
 
     def remove_from_room(self, room_name, user_ip):
-        """
-        removing a user from a room
+        """removing a user from a room
         and the room name from his list
+
+        Args:
+            room_name (str): room to remove the user from
+            user_ip (str): virtual ip of the user
+
+        Raises:
+            room_not_exist: if room not exists
         """
         val = self.__is_room_exists(room_name)
         if val:
@@ -234,8 +301,14 @@ class Google_DB:
             raise room_not_exist(room_name)
             
     def change_room_pass(self, room_name, new_pass):
-        """
-        change password for room
+        """change password for room
+
+        Args:
+            room_name (str):
+            new_pass (str): new password for the room
+
+        Raises:
+            room_not_exist: cant find room error
         """
         val = self.__is_room_exists(room_name)
         if val:
@@ -245,6 +318,15 @@ class Google_DB:
             raise room_not_exist(room_name)
 
     def change_sets(self, room_name, sets):
+        """change settins for the room
+
+        Args:
+            room_name (str): room name
+            sets (str(dict)): the dict of the settings in str
+
+        Raises:
+            room_not_exist: cant find room error
+        """
         val = self.__is_room_exists(room_name)
         if val:
             is_updated = catch_exception_put_db(self.db.child("Networks").child(room_name).update(
@@ -253,6 +335,14 @@ class Google_DB:
             raise room_not_exist(room_name)
     
     def del_room(self, room_name):
+        """delete room
+
+        Args:
+            room_name (str): room to delte
+
+        Raises:
+            room_not_exist: cant find room error
+        """
         val = self.__is_room_exists(room_name)
         if val:
             user_list = val[room_name]['users'] + [val[room_name]['admin']]
@@ -267,6 +357,15 @@ class Google_DB:
             raise room_not_exist(room_name)
 
     def change_admin(self,name, ip):
+        """change admin of the room
+
+        Args:
+            name (str): room name
+            ip (str): ip of the new admin
+
+        Raises:
+            room_not_exist: cant find room error
+        """
         val = self.__is_room_exists(name)
         if val:
             user_list = val[name]['users']
@@ -318,17 +417,41 @@ class Room_manager:
         self.db = db
 
     def __get_data_with_size(self, sc: socket.socket):
+        """return data from socket
+
+        Args:
+            sc (socket): user socket for data
+
+        Returns:
+            list: list of the parametrs
+        """
         size = int(sc.recv(3).decode())
         req_msg = sc.recv(size).decode()
         data = req_msg.split('#')
         return data
 
     def __get_data(self, sc: socket.socket):
+        """return data from socket
+
+        Args:
+            sc (socket): user socket for data
+
+        Returns:
+            list: list of the parametrs
+        """
         req_msg = sc.recv(1024).decode()
         data = req_msg.split('#')
         return data
 
     def __new_room(self, data: list):
+        """acomplish new room request
+
+        Args:
+            data (list): parametrs to work with
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.add_new_room(NewRoom(data))
             return 's'
@@ -336,6 +459,15 @@ class Room_manager:
             return 'f' + str(e)
 
     def __join_room(self, data: list, vir_ip):
+        """acomplish join to new room
+
+        Args:
+            data (list): parameters
+            vir_ip (str): virtual ip of the user
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.join_room(data[0], vir_ip, data[1])
             return 's'
@@ -343,6 +475,15 @@ class Room_manager:
             return 'f' + str(e)
 
     def __leave_room(self, data: list, vir_ip):
+        """make leave room operation
+
+        Args:
+            data (list): the data to work with
+            vir_ip (str): virtual ip of the user
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.remove_from_room(data[0], vir_ip)
             return 's'
@@ -350,6 +491,14 @@ class Room_manager:
             return 'f' + str(e)
 
     def __change_admin_in_room(self, data: list):
+        """change admin of room
+
+        Args:
+            data (list): the data
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.change_admin(data[0], data[1])
             return 's'
@@ -357,6 +506,14 @@ class Room_manager:
             return 'f' + str(e)
 
     def __kick_from_room(self, data: list):
+        """kick user from room
+
+        Args:
+            data (list): the data to work with
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.remove_from_room(data[0], data[1])
             return 's'
@@ -364,6 +521,14 @@ class Room_manager:
             return 'f' + str(e)
 
     def __delete_room(self, data: list):
+        """delete the room
+
+        Args:
+            data (list): the data
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.del_room(data[0])
             return 's'
@@ -371,6 +536,14 @@ class Room_manager:
             return 'f' + str(e)
 
     def __change_password(self, data: list):
+        """change password for room
+
+        Args:
+            data (list): data to work with
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.change_room_pass(data[0], data[1])
             return 's'
@@ -378,6 +551,14 @@ class Room_manager:
             return 'f' + str(e)
 
     def __change_settings(self, data: list):
+        """change room settings
+
+        Args:
+            data (list): the data
+
+        Returns:
+            str: msg to client if the operation worked
+        """
         try:
             self.db.change_sets(data[0], data[1])
             return 's'
@@ -387,6 +568,9 @@ class Room_manager:
     def __give_room_data(self, data: list, vir_ip):
         """
         get room data from db and send
+
+        Returns:
+            [str]: if succed and the data of the room
         """
         print('give room %s from db' % (data[0]))
         print(data)
@@ -402,6 +586,11 @@ class Room_manager:
             return 'f' + str(e)
 
     def handle_request(self, clnt):
+        """handle all the request from a client
+
+        Args:
+            clnt (struct): client parametrs and information
+        """
         code = clnt.sc.recv(2).decode()  # msg code
         if code == '10':
             data = self.__get_data_with_size(clnt.sc)
