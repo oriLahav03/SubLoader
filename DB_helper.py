@@ -31,16 +31,4 @@ def catch_exception_put_db(schema, error):
     return True
 
 
-def get_free_ip(db):
-    """
-    the function give the first free to use ip from the database
-    :param db: the database with the ips
-    :return: the ip
-    """
-    ips = catch_exception_get_db(db.child('IPS').order_by_child('used').limit_to_first(1).get().val(),
-                                 'ERROR: cant get ip...')
-    ip = ips.popitem()
-    if ip[1]['used'] is False:
-        return ip[0], ip[1]['ip']
-    else:
-        raise get_ip_err()
+

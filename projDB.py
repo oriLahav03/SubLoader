@@ -57,6 +57,19 @@ class Google_DB:
         self.db = db
         self.auth = auth
 
+    def get_free_ip(self):
+        """
+        the function give the first free to use ip from the database
+        :return: the ip
+        """
+        ips = catch_exception_get_db(self.db.child('IPS').order_by_child('used').limit_to_first(1).get().val(),
+                                    'ERROR: cant get ip...')
+        ip = ips.popitem()
+        if ip[1]['used'] is False:
+            return ip[0], ip[1]['ip']
+        else:
+            raise get_ip_err()
+
     def __get_userinfo_by(self, child, eql):
         """get the wanted user by value that provide
 
@@ -112,7 +125,7 @@ class Google_DB:
                 print("ERROR: Wrong Email or Password input!")
                 return False, str(e)
 
-            ip_id, ip = get_free_ip(self.db)
+            ip_id, ip = self.get_free_ip()
             user_info = catch_exception_put_db(
                 self.db.child("Users").child(s_up.username).set({'username': s_up.username, 'ip': ip,
                                                                             'email': s_up.email,'networks': []}),
