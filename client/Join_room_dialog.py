@@ -2,7 +2,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Join_Room_Dialog(object):
+    def __init__(self):
+        self.cancel = True
+
     def setupUi(self):
+        """
+        The function handle the user join room event
+        :return: None
+        """
         self.Join_Room_Dialog = QtWidgets.QDialog()
         self.Join_Room_Dialog.setObjectName("Join_Room_Dialog")
         self.Join_Room_Dialog.resize(400, 255)
@@ -61,8 +68,11 @@ class Ui_Join_Room_Dialog(object):
 
         return str(self.room_name.text()), str(self.room_password.text()), self.cancel
 
-
     def retranslateUi(self):
+        """
+        The function set the names for the boxes
+        :return: None
+        """
         _translate = QtCore.QCoreApplication.translate
         self.Join_Room_Dialog.setWindowTitle(_translate("Join_Room_Dialog", "Join room"))
         self.title_label.setText(_translate("Join_Room_Dialog", "Join room"))
@@ -74,10 +84,17 @@ class Ui_Join_Room_Dialog(object):
         self.cancel_btn.setText(_translate("Join_Room_Dialog", "Cancel"))
 
     def cancel_clicked(self):
+        """
+        The function check if the user clicked the cancel click to cancel the joining
+        :return: None
+        """
         self.Join_Room_Dialog.close()
-        self.cancel = True
 
     def join_clicked(self):
+        """
+        The function handle the join button pressed event, when the user join a room
+        :return: None
+        """
         if self.room_name.text() != "" or not self.cancel_btn.clicked:
             self.Join_Room_Dialog.close()
         else:

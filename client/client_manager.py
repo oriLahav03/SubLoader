@@ -6,6 +6,7 @@ import re
 from PyQt5 import QtWidgets as qtw
 from PyQt5 import QtGui as qtg
 
+
 class Manager():
     def __init__(self):
         self.logic = Client_logic()
@@ -16,7 +17,7 @@ class Manager():
     def __move_to_rooms(self):
         self.logic.init_room_req()
         self.logic.init_proxy()
-        my_dit = self.logic.un +" - "+self.logic.vir_ip
+        my_dit = self.logic.un + " - " + self.logic.vir_ip
         win_g = Ui_RoomsWindow(self)
         self.auth_mng.wig.close()
         win_g.setupUi(qtw.QMainWindow(), self.logic.networks_data, my_dit)
@@ -36,13 +37,13 @@ class Manager():
         except (email_err, pw_err, un_err) as e:
             qtw.QMessageBox.critical(self.auth_mng.wig, 'INPUT ERROR', str(e))
 
-        
     def make_login(self):
         try:
-            args = self.auth_mng.win.get_labels()#['yyy@gmail.com','000000i']#['ttt@gmail.com', '1234567']
+            args = self.auth_mng.win.get_labels()  # ['yyy@gmail.com','000000i']#['ttt@gmail.com', '1234567']
             res = self.logic.do_login(args[0], args[1])
             if res:
-                qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail', 'login unsuccessful \nusername or password incorrect')
+                qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail',
+                                         'login unsuccessful \nusername or password incorrect')
             else:
                 self.__move_to_rooms()
         except (email_err, pw_err) as e:
@@ -50,14 +51,14 @@ class Manager():
         except get_data_err as e:
             qtw.QMessageBox.critical(self.auth_mng.wig, 'Get data', str(e))
 
-    def next_win(self, win = None):
+    def next_win(self, win=None):
         print("*room window*")
         win.wig.show()
-     
+
     def start_gui(self):
         self.auth_mng.set_ui(self)
         sys.exit(self.gui_app.exec_())
 
+
 if __name__ == '__main__':
     mang = Manager()
-    

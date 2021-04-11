@@ -2,19 +2,18 @@ from room_gui import *
 from Create_room_dialog import *
 from Join_room_dialog import *
 
-
 ROOMS = {
-       'room1': ['ori', 'ilay', 'yossi1'],
-       'room2': ['ori', 'ilay', 'yossi2'],
-       'room3': ['ori', 'ilay', 'yossi3'],
-       'room4': ['ori', 'ilay', 'yossi1'],
-       'room5': ['ori', 'ilay', 'yossi2'],
-       'room6': ['ori', 'ilay', 'yossi3']
+    'room1': ['ori', 'ilay', 'yossi1'],
+    'room2': ['ori', 'ilay', 'yossi2'],
+    'room3': ['ori', 'ilay', 'yossi3'],
+    'room4': ['ori', 'ilay', 'yossi1'],
+    'room5': ['ori', 'ilay', 'yossi2'],
+    'room6': ['ori', 'ilay', 'yossi3']
 }
 USER_NAME = "Ori"
 
 
-class Ui_RoomsWindow():
+class Ui_RoomsWindow:
     def __init__(self, main_mng):
         self.mng = main_mng
 
@@ -97,7 +96,7 @@ class Ui_RoomsWindow():
         self.retranslateUi(self.wig, user_ip)
         # Run
         QtCore.QMetaObject.connectSlotsByName(self.wig)
-    
+
     def retranslateUi(self, mainWindow, user_ip):
         """
         The function set all the names.
@@ -138,7 +137,11 @@ class Ui_RoomsWindow():
         if cancel:
             pass
         elif room_name in self.rooms.keys():
-            QtWidgets.QMessageBox.Critical(self.wig,"Wrong Parameters", "You'r already in this room")
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("You are already in this room")
+            msg.setWindowTitle("Wrong Parameters")
+            msg.exec_()
         else:
             res = self.mng.logic.room_req.join_new_room(room_name, room_pass)
             if res == 's':
@@ -166,7 +169,7 @@ class Ui_RoomsWindow():
             [dict]: [data that the gui can display]
         """
         temp_data = {}
-        for n,dt in rooms_data.items():
+        for n, dt in rooms_data.items():
             temp_data[n] = dt[0]
         return temp_data
 
@@ -174,7 +177,7 @@ class Ui_RoomsWindow():
         """update the rooms view if a room added or delted
         use only after update the room list data
         """
-        #clear the rooms spot
+        # clear the rooms spot
         if self.verticalLayout_2.count():
             del self.verticalLayout_2
             self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
@@ -191,11 +194,12 @@ class Ui_RoomsWindow():
         """
         room = Ui_room()
         _room = {Ui_room.setObjectName(room, room_name), Ui_room.setFixedWidth(room, 350),
-                    Ui_room.setWindowTitle(room, "room")}
+                 Ui_room.setWindowTitle(room, "room")}
         Ui_room.setupUi(room, _room=_room, members=members, _room_name=room_name)
         room.adjustSize()
         self.verticalLayout_2.addWidget(room)
         self.verticalLayout_2.addSpacerItem(self.verticalSpacer)
+
 
 if __name__ == "__main__":
     import sys
@@ -206,4 +210,3 @@ if __name__ == "__main__":
     ui.setupUi(_MainWindow, ROOMS, '25.200.0.10')
     _MainWindow.show()
     sys.exit(app.exec_())
-

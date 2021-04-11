@@ -3,6 +3,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class Ui_Create_Room_Dialog(object):
     def setupUi(self):
+        """
+        The function setup the new room
+        :return: room name, room password and if the user cancel the room creation
+        """
         self.Create_Room_Dialog = QtWidgets.QDialog()
         self.Create_Room_Dialog.setObjectName("Create_Room_Dialog")
         self.Create_Room_Dialog.resize(400, 255)
@@ -62,6 +66,10 @@ class Ui_Create_Room_Dialog(object):
         return str(self.room_name.text()), str(self.room_password.text()), self.cancel
 
     def retranslateUi(self):
+        """
+        The function set the names of the boxes
+        :return: None
+        """
         _translate = QtCore.QCoreApplication.translate
         self.Create_Room_Dialog.setWindowTitle(_translate("Create_Room_Dialog", "Create new room"))
         self.create_btn.setText(_translate("Create_Room_Dialog", "Create"))
@@ -73,10 +81,18 @@ class Ui_Create_Room_Dialog(object):
         self.room_password.setPlaceholderText(_translate("Create_Room_Dialog", "Example: password"))
 
     def cancel_clicked(self):
+        """
+        The function check if the user clicked the cancel click to cancel the creation
+        :return: None
+        """
         self.Create_Room_Dialog.close()
         self.cancel = True
 
     def create_clicked(self):
+        """
+        The function handle the new room creation when the user want to create new room
+        :return: None
+        """
         if self.room_name.text() != "" or not self.cancel_btn.clicked:
             self.Create_Room_Dialog.close()
         else:

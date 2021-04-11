@@ -410,6 +410,7 @@ class Room_manager:
             data = self.__get_data(clnt.sc)
             clnt.sc.send('11'.encode() + self.__join_room(data, clnt.vir_ip).encode())
         elif code == '12':  # TODO: give the admin to another if admin leave
+            data = self.__get_data(clnt.sc)
             clnt.sc.send('12'.encode() + self.__leave_room(data, clnt.vir_ip).encode())
         elif code == '18':
             data = self.__get_data(clnt.sc)

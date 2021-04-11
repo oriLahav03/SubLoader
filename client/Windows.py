@@ -1,14 +1,17 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-def login_screen():
-    LoginForm = QtWidgets.QWidget()
-    ui = Ui_LoginForm()
-    ui.setupUi(LoginForm)
-    LoginForm.show()
-
 
 class Ui_LoginForm(QtWidgets.QWidget):
+    """
+    Login window
+    """
     def setupUi(self, LoginForm, mng):
+        """
+        The function creates the main window of the application with login
+        :param LoginForm: the window
+        :param mng: the manage window
+        :return: None
+        """
         LoginForm.setObjectName("LoginForm")
         LoginForm.setFixedSize(400, 200)
         LoginForm.setWindowIcon(QtGui.QIcon('SubLoader.jpeg'))
@@ -70,14 +73,28 @@ class Ui_LoginForm(QtWidgets.QWidget):
         self.retranslateUi(LoginForm)
         QtCore.QMetaObject.connectSlotsByName(LoginForm)
         self.conn(mng)
-        
+
     def conn(self, mng):
+        """
+        The function connect the window to the button
+        :param mng: the manage window
+        :return: None
+        """
         self.login_button.clicked.connect(mng.make_login)
         self.back_to_singup.clicked.connect(mng.auth_mng.switch_windows)
+
     def get_labels(self):
-        return [self.email_text.text() ,self.password_text.text()]
+        """
+        The function return all the labels there is
+        :return: the labels
+        """
+        return [self.email_text.text(), self.password_text.text()]
 
     def authenticate(self):
+        """
+        The function check the authentication
+        :return: None
+        """
         # email = self.email_text.text()
         # password = self.password_text.text()
 
@@ -102,11 +119,20 @@ class Ui_LoginForm(QtWidgets.QWidget):
 
 
 class Ui_SingupForm(object):
+    """
+    Signup window
+    """
     def setupUi(self, SingupForm, mng):
+        """
+        The function creates the main window of the application with signup
+        :param SingupForm: the window
+        :param mng: the manage window
+        :return: None
+        """
         SingupForm.setObjectName("SingupForm")
         SingupForm.setFixedSize(477, 350)
         SingupForm.setWindowIcon(QtGui.QIcon('SubLoader.jpeg'))
-        
+
         # Singup Label
         font = QtGui.QFont()
         font.setPointSize(16)
@@ -188,14 +214,28 @@ class Ui_SingupForm(object):
         self.conn(mng)
 
     def conn(self, mng):
+        """
+        The function connect the window to the button
+        :param mng: the manage window
+        :return: None
+        """
         self.back_to_login_button.clicked.connect(mng.auth_mng.switch_windows)
         self.create_account_button.clicked.connect(mng.make_singup)
 
     def get_labels(self):
-        return [self.email_text.text(), self.username_text.text(), 
-        self.password_text.text(), self.confirm_password_text.text()]
+        """
+        The function return all the labels there is
+        :return: the labels
+        """
+        return [self.email_text.text(), self.username_text.text(),
+                self.password_text.text(), self.confirm_password_text.text()]
 
     def retranslateUi(self, SingupForm):
+        """
+        the function set up the texts
+        :param SingupForm: the SingupForm
+        :return: None
+        """
         _translate = QtCore.QCoreApplication.translate
         SingupForm.setWindowTitle(_translate("SingupForm", "Signup"))
         self.signup_label.setText(_translate("SingupForm", "Singup to Subloader"))
@@ -208,5 +248,3 @@ class Ui_SingupForm(object):
                                                         "and acknowledge our Privacy Policy."))
         self.create_account_button.setText(_translate("SingupForm", "Create"))
         self.back_to_login_button.setText(_translate("SingupForm", "Go back to Login screen"))
-
-
