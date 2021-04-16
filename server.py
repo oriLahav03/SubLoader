@@ -36,11 +36,11 @@ class Server:
         s_up = Singup(req[0], req[1], req[2], req[3])
         res = self.gdb.singup(s_up)
         if res[0]:
-            cln_sc.sendall(('01s' + s_up.email+ '!' + res[1]).encode())
-            return False,(s_up.email,s_up.username,res[1],[], res[2])
+            cln_sc.sendall(('01s' + s_up.email + '!' + res[1]).encode())
+            return False, (s_up.email, s_up.username, res[1], [], res[2])
         else:
             cln_sc.sendall(('01f' + res[1]).encode())
-            return True,None
+            return True, None
 
     def handle_login(self, cln_sc, req: list):
         """
@@ -52,12 +52,12 @@ class Server:
         l_in = Login(req[0], req[1])
         res = self.gdb.login(l_in)
         if res[0]:
-            user_info = res[1][0] + '!' + res[1][1] +'!'+ str(res[1][2])
-            cln_sc.sendall(('02s'+ str(len(user_info)).rjust(3,'0') + user_info).encode())
-            return False,(l_in.email, res[1][0], res[1][1], res[1][2],res[1][3])
+            user_info = res[1][0] + '!' + res[1][1] + '!' + str(res[1][2])
+            cln_sc.sendall(('02s' + str(len(user_info)).rjust(3, '0') + user_info).encode())
+            return False, (l_in.email, res[1][0], res[1][1], res[1][2], res[1][3])
         else:
             cln_sc.sendall(('02f' + res[1]).encode())
-            return True,None
+            return True, None
 
     def new_auth(self, sc: socket.socket):
         """
@@ -66,6 +66,7 @@ class Server:
         :return: user info.
         """
         req_msg = 0
+        data = ''
         out = True
         while out:
             code = sc.recv(2).decode()
@@ -87,9 +88,9 @@ class Server:
         while True:
             Client, address = self.ServerSocket.accept()
             con_type = Client.recv(1).decode()
-            if con_type == 'a':              #a for our app connection
+            if con_type == 'a':  # a for our app connection
                 start_new_thread(self.threaded_client, (Client, address))
-            elif con_type == 'p':            #p for proxy connection
+            elif con_type == 'p':  # p for proxy connection
                 start_new_thread(self.proxy.rout, (Client,))
             else:
                 Client.sendall(b'00not chose type of connection')
@@ -115,6 +116,7 @@ class Server:
         :param address: the client address.
         :return: None.
         """
+        usr_data = list()
         try:
             usr_data = self.new_auth(sc)
             is_connected = True
@@ -122,12 +124,13 @@ class Server:
             print(str(e))
             is_connected = False
 
-        if is_connected: 
+        if is_connected:
             self.client_lock.acquire()
-            self.clients_list[(sc, address)] = Client(sc, address, usr_data[1], usr_data[0],usr_data[2],usr_data[3], usr_data[4])
+            self.clients_list[(sc, address)] = Client(sc, address, usr_data[1], usr_data[0], usr_data[2], usr_data[3],
+                                                      usr_data[4])
             self.Thread_count += 1
             self.client_lock.release()
-            print(usr_data[1] + ' connected from '+ address[0])
+            print(usr_data[1] + ' connected from ' + address[0])
             print('client-' + str(self.Thread_count))
 
             while True:
@@ -148,7 +151,7 @@ class Server:
             self.send_to_all(address, usr_data[1] + ' logout')
             self.client_lock.acquire()
             self.Thread_count -= 1
-            del self.clients_list[(sc, address)] # remove client
+            del self.clients_list[(sc, address)]  # remove client
 
             self.client_lock.release()
             sc.close()
