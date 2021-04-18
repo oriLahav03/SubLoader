@@ -110,7 +110,7 @@ class Room_req:
 
     def change_sets(self, new_users, need_pass, manual_accept):
         """
-        The function send the change sets requests to the server
+        The function send the change settings requests to the server
         :param new_users: the user to set
         :param need_pass: if the room need password
         :param manual_accept: if its gonna be manual accept or not

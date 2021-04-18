@@ -4,7 +4,7 @@ from client_err import *
 from rooms_logic import *
 import re
 
-host = 'ec2-52-210-76-129.eu-west-1.compute.amazonaws.com'
+host = '127.0.0.1'
 port = 10000
 
 # Email must be in a some@some.com format

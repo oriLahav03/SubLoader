@@ -31,6 +31,10 @@ class Manager:
         self.logic.prx.start_threads()
 
     def make_singup(self):
+        """
+        The function take the input from the GUI and send it to the server
+        :return: None
+        """
         try:
             args = self.auth_mng.win.get_labels()
             res = self.logic.do_singup(args[0], args[1], args[2], args[3])

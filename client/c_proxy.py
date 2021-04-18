@@ -13,7 +13,7 @@ statuses = {
     2: "1+server conn",
     3: "only server conn"
 }
-server_conn = ("ec2-52-210-76-129.eu-west-1.compute.amazonaws.com", 10000)
+server_conn = ("127.0.0.1", 10000)
 
 g_my_vir_ip = "25.200.0.10"
 g_ips = ["25.200.0.11", "25.200.0.100", "25.200.0.10"]
