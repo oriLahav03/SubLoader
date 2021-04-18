@@ -10,8 +10,8 @@ from PyQt5 import QtGui as qtg
 class Manager:
     def __init__(self):
         self.logic = Client_logic()
-        self.gui_app = qtw.QApplication(sys.argv)
         self.auth_mng = Auth_mng(self)
+        self.gui_app = qtw.QApplication(sys.argv)
         self.start_gui()
 
     def __move_to_rooms(self):
