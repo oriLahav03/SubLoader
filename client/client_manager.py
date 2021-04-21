@@ -51,7 +51,7 @@ class Manager:
         :return:None
         """
         try:
-            args = self.auth_mng.win.get_labels()  # ['yyy@gmail.com','000000i']#['ttt@gmail.com', '1234567']
+            args = ['yyy@gmail.com','000000i']#self.auth_mng.win.get_labels()  # ['yyy@gmail.com','000000i']#['ttt@gmail.com', '1234567']
             res = self.logic.do_login(args[0], args[1])
             if res:
                 qtw.QMessageBox.critical(self.auth_mng.wig, 'Fail',

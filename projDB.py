@@ -471,6 +471,8 @@ class Room_manager:
             return 's'
         except name_taken as e:
             return 'f' + str(e)
+        except Exception as e:
+            return 'f' + str(e)
 
     def __join_room(self, data: list, vir_ip):
         """acomplish join to new room
@@ -486,6 +488,8 @@ class Room_manager:
             self.db.join_room(data[0], vir_ip, data[1])
             return 's'
         except join_room_err as e:
+            return 'f' + str(e)
+        except Exception as e:
             return 'f' + str(e)
 
     def __leave_room(self, data: list, vir_ip):
@@ -503,6 +507,8 @@ class Room_manager:
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
+        except Exception as e:
+            return 'f' + str(e)
 
     def __change_admin_in_room(self, data: list):
         """change admin of room
@@ -516,6 +522,8 @@ class Room_manager:
         try:
             self.db.change_admin(data[0], data[1])
             return 's'
+        except Exception as e:
+            return 'f' + str(e)
         except Exception as e:
             return 'f' + str(e)
 
@@ -533,6 +541,8 @@ class Room_manager:
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
+        except Exception as e:
+            return 'f' + str(e)
 
     def __delete_room(self, data: list):
         """delete the room
@@ -547,6 +557,8 @@ class Room_manager:
             self.db.del_room(data[0])
             return 's'
         except room_not_exist as e:
+            return 'f' + str(e)
+        except Exception as e:
             return 'f' + str(e)
 
     def __change_password(self, data: list):
@@ -563,6 +575,8 @@ class Room_manager:
             return 's'
         except room_not_exist as e:
             return 'f' + str(e)
+        except Exception as e:
+            return 'f' + str(e)
 
     def __change_settings(self, data: list):
         """change room settings
@@ -577,6 +591,8 @@ class Room_manager:
             self.db.change_sets(data[0], data[1])
             return 's'
         except room_not_exist as e:
+            return 'f' + str(e)
+        except Exception as e:
             return 'f' + str(e)
 
     def __give_room_data(self, data: list, vir_ip):
@@ -597,6 +613,8 @@ class Room_manager:
         except get_data_err as e:
             return 'f' + str(e)
         except room_not_exist as e:
+            return 'f' + str(e)
+        except Exception as e:
             return 'f' + str(e)
 
     def handle_request(self, clnt):
