@@ -311,6 +311,8 @@ class Google_DB:
                 user_rooms.remove(room_name)
                 is_updated = catch_exception_put_db(self.db.child("Users").child(user_if[0]).update(
                     {'rooms': user_rooms}), "cant remove room from list")
+            else:
+                raise Exception("can't leave room if admin or not in room")
         else:
             raise room_not_exist(room_name)
 
@@ -386,8 +388,10 @@ class Google_DB:
             if ip in user_list:
                 user_list.remove(ip)
                 user_list.append(val[name]['admin'])
-            is_updated = catch_exception_put_db(self.db.child("Users").child(name).update(
+                is_updated = catch_exception_put_db(self.db.child("Users").child(name).update(
                 {'admin': ip, 'users': user_list}), "cant update admin")
+            else:
+                raise Exception("user isn't member of the room")
         else:
             raise room_not_exist(name)
 
@@ -524,9 +528,7 @@ class Room_manager:
             return 's'
         except Exception as e:
             return 'f' + str(e)
-        except Exception as e:
-            return 'f' + str(e)
-
+            
     def __kick_from_room(self, data: list):
         """kick user from room
 
