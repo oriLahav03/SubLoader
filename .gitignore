@@ -1,8 +1,0 @@
-.vscode
-*.msi
-*.txt
-.idea
-DB
-__pycache__
-.env
-.gitignore
