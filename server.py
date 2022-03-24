@@ -2,8 +2,13 @@ from _thread import *
 from projDB import *
 from proxy import *
 
-host = '127.0.0.1'
-port = 10000
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+host = os.getenv('HOST')
+port = os.getenv('PORT')
 
 
 class Server:

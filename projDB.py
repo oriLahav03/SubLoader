@@ -2,14 +2,13 @@ from DB_helper import *
 import socket
 import pyrebase
 
-firebaseConfig = {'apiKey': "AIzaSyAsWlvXK-lblE2C9QWt8HNwKKCO6GsB26E",
-                  'authDomain': "subloader-98331.firebaseapp.com",
-                  'databaseURL': "https://subloader-98331.firebaseio.com",
-                  'projectId': "subloader-98331",
-                  'storageBucket': "subloader-98331.appspot.com",
-                  'messagingSenderId': "763871684411",
-                  'appId': "1:763871684411:web:6f8cca8650dfc178cb391e",
-                  'measurementId': "G-2WBR7EQDYC"}
+from dotenv import load_dotenv
+import os
+import ast
+
+load_dotenv()
+
+firebaseConfig = ast.literal_eval(os.getenv('FIREBASE_KEY'))
 
 firebase = pyrebase.initialize_app(firebaseConfig)
 database = firebase.database()

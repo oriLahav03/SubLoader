@@ -1,13 +1,11 @@
 import pyrebase
+from dotenv import load_dotenv
+import os
+import ast
 
-firebaseConfig = {'apiKey': "AIzaSyDBYHK7-ZaFOm1w2gdJB-4BXs3H7M2exZ8",
-    'authDomain': "subloadertest.firebaseapp.com",
-    'databaseURL': "https://subloadertest.firebaseio.com",
-    'projectId': "subloadertest",
-    'storageBucket': "subloadertest.appspot.com",
-    'messagingSenderId': "1024386391643",
-    'appId': "1:1024386391643:web:e2f7df6f0428993971297e",
-    'measurementId': "G-DBZRVXNL28"}
+load_dotenv()
+
+firebaseConfig = ast.literal_eval(os.getenv('FIREBASE_KEY'))
 
 firebase = pyrebase.initialize_app(firebaseConfig)
 
@@ -44,33 +42,6 @@ elif choose == 2:  # Signup
             print("Email already exists!")
     else:
         print("passwords not match!")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 '''
 from firebase import firebase

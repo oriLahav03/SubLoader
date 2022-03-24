@@ -6,6 +6,8 @@ import socket
 from scapy.layers.l2 import ARP, Ether
 from scapy.sendrecv import srp1, sniff, sendp
 
+from dotenv import load_dotenv
+import os
 
 statuses = {
     0: "need to accept",
@@ -13,7 +15,9 @@ statuses = {
     2: "1+server conn",
     3: "only server conn"
 }
-server_conn = ("127.0.0.1", 10000)
+load_dotenv()
+
+server_conn = (os.getenv('HOST'), os.getenv('PORT'))
 
 g_my_vir_ip = "25.200.0.10"
 g_ips = ["25.200.0.11", "25.200.0.100", "25.200.0.10"]

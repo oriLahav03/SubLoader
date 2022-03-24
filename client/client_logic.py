@@ -4,8 +4,13 @@ from client_err import *
 from rooms_logic import *
 import re
 
-host = '127.0.0.1'
-port = 10000
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+host = os.getenv('HOST')
+port = os.getenv('PORT')
 
 # Email must be in a some@some.com format
 email_regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
