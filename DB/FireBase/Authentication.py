@@ -42,18 +42,3 @@ elif choose == 2:  # Signup
             print("Email already exists!")
     else:
         print("passwords not match!")
-
-'''
-from firebase import firebase
-
-database = firebase.FirebaseApplication("https://subloadertest.firebaseio.com/", None)
-
-data = {
-    'Name': 'Ori Lahav',
-    'Email': 'oril20503@gmail.com',
-    'Phone': '0507205511'
-}
-
-result = database.post("/subloadertest/Customer", data)
-print(result)
-'''
