@@ -660,6 +660,6 @@ class Room_manager:
 if __name__ == '__main__':
     # tester
     gdb = Google_DB(database, authentication)
-    # gdb.login(Login('ilay@gmail.com', 'ilay120'))
+    # gdb.login(Login('email', 'password'))
     gdb.del_room('try')
     # gdb.change_sets('try', '''{'new_users' : True, 'need_pass': False, 'accept_manual' : True}''')
